@@ -59,7 +59,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 "Clemson"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(clemson));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(clemson, 10));
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+        if (ContextCompat.checkSelfPermission(this.getApplicationContext(), FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             mMap.setMyLocationEnabled(true);
         }
