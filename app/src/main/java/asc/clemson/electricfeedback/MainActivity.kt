@@ -7,12 +7,22 @@ import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.app.NotificationCompat
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
+import asc.clemson.electricfeedback.TrackingStartedNoto.notify
+import android.app.PendingIntent
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.TaskStackBuilder
+import android.content.Context
+import android.content.Context.NOTIFICATION_SERVICE
+
+
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 //hello
@@ -35,6 +45,44 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val intent = Intent(this@MainActivity, MapsActivity::class.java)
             startActivity(intent)
         }
+
+
+        val button2 = findViewById<Button>(R.id.button2)
+        button2.setOnClickListener {
+            //start persistent notification
+            val postIntent = Intent(this@MainActivity, MainActivity::class.java)
+            showNotification(this@MainActivity, "Track Routes...", "Electric Feedback", postIntent)
+        }
+    }
+
+    fun showNotification(context: Context, title: String, body: String, intent: Intent) {
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        val notificationId = 1
+        val channelId = "channel-01"
+        val channelName = "Channel Name"
+        val importance = NotificationManager.IMPORTANCE_HIGH
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            val mChannel = NotificationChannel(
+                    channelId, channelName, importance)
+            notificationManager.createNotificationChannel(mChannel)
+        }
+
+        val mBuilder = NotificationCompat.Builder(context)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle(title)
+                .setContentText(body)
+
+        val stackBuilder = TaskStackBuilder.create(context)
+        stackBuilder.addNextIntent(intent)
+        val resultPendingIntent = stackBuilder.getPendingIntent(
+                0,
+                PendingIntent.FLAG_UPDATE_CURRENT
+        )
+        mBuilder.setContentIntent(resultPendingIntent)
+
+        notificationManager.notify(notificationId, mBuilder.build())
     }
 
     override fun onBackPressed() {
