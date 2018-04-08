@@ -143,6 +143,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    //TODO: Inject our tracked Route into routes[0]
     @Override
     public void onDirectionFinderSuccess(List<Route> routes) {
         progressDialog.dismiss();
@@ -150,14 +151,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         originMarkers = new ArrayList<>();
         destinationMarkers = new ArrayList<>();
 
-
-
         Toast.makeText(this, "Directions found!", Toast.LENGTH_SHORT).show();
-        for (final Route route : routes) {
+        //CHANGE NUMBER OF ROUTES
+        for (int i = 0; i < 2; i++) {
+            Route route = routes.get(i);
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(route.startLocation, 16));
 
             ((TextView) findViewById(R.id.tvDistance)).setText(route.distance.text);   //For Distance
-
 
             originMarkers.add(mMap.addMarker(new MarkerOptions()
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.start_blue))
@@ -169,35 +169,32 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     .title(route.endAddress)
                     .position(route.endLocation)));
 
-
-
             /******************For Changing color ********************************************************/
             mMap.setOnPolylineClickListener(new GoogleMap.OnPolylineClickListener() {
                 @Override
                 public void onPolylineClick(Polyline polyline) {
                     // Flip the values of the red, green and blue components of the polyline's color.
-                    polyline.setColor(polyline.getColor() ^ 0x00ffffff);
-                    //  Toast.makeText(getActivity(), "Hello", Toast.LENGTH_SHORT).show();
+//                    polyline.setColor(Color.CYAN);
                 }
 
             });
 
             /*************************************************************************************************/
 
-            Random rnd = new Random();
-
-            int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(257), rnd.nextInt(258));
+            int color;
+            if(i == 0){
+                color = Color.BLUE;
+            }else{
+                color = Color.GRAY;
+            }
 
             /**/
             PolylineOptions polylineOptions = new PolylineOptions().
                     geodesic(true).color(color).width(15).clickable(true);
 
 
-
-
-            for (int i = 0; i < route.points.size(); i++)
-                polylineOptions.add(route.points.get(i));
-
+            for (int j = 0; j < route.points.size(); j++)
+                polylineOptions.add(route.points.get(j));
 
             polylinePaths.add(mMap.addPolyline(polylineOptions));
 

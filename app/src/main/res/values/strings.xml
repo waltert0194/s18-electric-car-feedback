@@ -2,7 +2,8 @@
     <string name="app_name">Electric Feedback</string>
     <string name="title_activity_maps">Electric Feedback</string>
     <string name="title_activity_main">MainActivity</string>
-    <string name="button1">Start</string>
+    <string name="button1">Manually Enter Route</string>
+    <string name="button2">Start Background Route Tracking</string>
     <string name="HomeScreenMessage">Welcome!</string>
     <string name="HomeScreenInfo">Please click the button below to begin a new survey.</string>
     <string name="nav_header_desc">Anonymous route algorithm feedback for future electric car charging lanes.</string>

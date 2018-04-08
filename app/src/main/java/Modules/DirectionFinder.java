@@ -26,9 +26,6 @@ public class DirectionFinder {
     private String origin;
     private String destination;
 
-
-
-
     public DirectionFinder(DirectionFinderListener listener, String origin, String destination) {
         this.listener = listener;
         this.origin = origin;
@@ -43,7 +40,6 @@ public class DirectionFinder {
     private String createUrl() throws UnsupportedEncodingException {
         String urlOrigin = URLEncoder.encode(origin, "utf-8");
         String urlDestination = URLEncoder.encode(destination, "utf-8");
-
 
         return DIRECTION_URL_API + "origin=" + urlOrigin + "&destination=" + urlDestination +"&alternatives=true" +"&key=" + GOOGLE_API_KEY;
     }
@@ -87,7 +83,6 @@ public class DirectionFinder {
     private void parseJSon(String data) throws JSONException {
         if (data == null)
             return;
-
 
         List<Route> routes = new ArrayList<Route>();
         JSONObject jsonData = new JSONObject(data);
