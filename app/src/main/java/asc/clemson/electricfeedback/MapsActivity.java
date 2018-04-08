@@ -29,6 +29,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import Modules.DirectionFinder;
 import Modules.DirectionFinderListener;
@@ -149,29 +150,57 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         originMarkers = new ArrayList<>();
         destinationMarkers = new ArrayList<>();
 
-        for (Route route : routes) {
+
+
+        Toast.makeText(this, "Directions found!", Toast.LENGTH_SHORT).show();
+        for (final Route route : routes) {
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(route.startLocation, 16));
-            ((TextView) findViewById(R.id.tvDuration)).setText(route.duration.text);
-            ((TextView) findViewById(R.id.tvDistance)).setText(route.distance.text);
+
+            ((TextView) findViewById(R.id.tvDistance)).setText(route.distance.text);   //For Distance
+
 
             originMarkers.add(mMap.addMarker(new MarkerOptions()
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.start_blue))
                     .title(route.startAddress)
                     .position(route.startLocation)));
+
             destinationMarkers.add(mMap.addMarker(new MarkerOptions()
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.end_green))
                     .title(route.endAddress)
                     .position(route.endLocation)));
 
+
+
+            /******************For Changing color ********************************************************/
+            mMap.setOnPolylineClickListener(new GoogleMap.OnPolylineClickListener() {
+                @Override
+                public void onPolylineClick(Polyline polyline) {
+                    // Flip the values of the red, green and blue components of the polyline's color.
+                    polyline.setColor(polyline.getColor() ^ 0x00ffffff);
+                    //  Toast.makeText(getActivity(), "Hello", Toast.LENGTH_SHORT).show();
+                }
+
+            });
+
+            /*************************************************************************************************/
+
+            Random rnd = new Random();
+
+            int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(257), rnd.nextInt(258));
+
+            /**/
             PolylineOptions polylineOptions = new PolylineOptions().
-                    geodesic(true).
-                    color(Color.BLUE).
-                    width(10);
+                    geodesic(true).color(color).width(15).clickable(true);
+
+
+
 
             for (int i = 0; i < route.points.size(); i++)
                 polylineOptions.add(route.points.get(i));
 
+
             polylinePaths.add(mMap.addPolyline(polylineOptions));
+
         }
     }
 
