@@ -1,5 +1,6 @@
 package asc.clemson.electricfeedback
 
+import android.app.*
 import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.Snackbar
@@ -15,10 +16,6 @@ import android.widget.Button
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import asc.clemson.electricfeedback.TrackingStartedNoto.notify
-import android.app.PendingIntent
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.TaskStackBuilder
 import android.content.Context
 import android.content.Context.NOTIFICATION_SERVICE
 
@@ -67,22 +64,40 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val mChannel = NotificationChannel(
                     channelId, channelName, importance)
             notificationManager.createNotificationChannel(mChannel)
+
+
+            val mBuilder = Notification.Builder(context, channelId)
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setContentTitle(title)
+                    .setContentText(body)
+
+            val stackBuilder = TaskStackBuilder.create(context)
+            stackBuilder.addNextIntent(intent)
+            val resultPendingIntent = stackBuilder.getPendingIntent(
+                    0,
+                    PendingIntent.FLAG_UPDATE_CURRENT
+            )
+            mBuilder.setContentIntent(resultPendingIntent)
+
+            notificationManager.notify(notificationId, mBuilder.build())
         }
+        else {
 
-        val mBuilder = NotificationCompat.Builder(context)
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle(title)
-                .setContentText(body)
+            val mBuilder = NotificationCompat.Builder(context)
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setContentTitle(title)
+                    .setContentText(body)
 
-        val stackBuilder = TaskStackBuilder.create(context)
-        stackBuilder.addNextIntent(intent)
-        val resultPendingIntent = stackBuilder.getPendingIntent(
-                0,
-                PendingIntent.FLAG_UPDATE_CURRENT
-        )
-        mBuilder.setContentIntent(resultPendingIntent)
+            val stackBuilder = TaskStackBuilder.create(context)
+            stackBuilder.addNextIntent(intent)
+            val resultPendingIntent = stackBuilder.getPendingIntent(
+                    0,
+                    PendingIntent.FLAG_UPDATE_CURRENT
+            )
+            mBuilder.setContentIntent(resultPendingIntent)
 
-        notificationManager.notify(notificationId, mBuilder.build())
+            notificationManager.notify(notificationId, mBuilder.build())
+        }
     }
 
     override fun onBackPressed() {
