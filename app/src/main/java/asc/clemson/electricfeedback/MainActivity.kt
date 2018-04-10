@@ -54,7 +54,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     fun showNotification(context: Context, title: String, body: String, intent: Intent) {
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
         val notificationId = 1
         val channelId = "channel-01"
         val channelName = "Channel Name"
@@ -82,7 +81,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             notificationManager.notify(notificationId, mBuilder.build())
         }
         else {
-
             val mBuilder = NotificationCompat.Builder(context)
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setContentTitle(title)
