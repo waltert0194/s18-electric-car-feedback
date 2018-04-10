@@ -1,9 +1,9 @@
 package asc.clemson.electricfeedback
 
 import android.app.*
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.support.design.widget.Snackbar
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
@@ -11,18 +11,12 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.app.NotificationCompat
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.Button
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
-import asc.clemson.electricfeedback.TrackingStartedNoto.notify
-import android.content.Context
-import android.content.Context.NOTIFICATION_SERVICE
-
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
-//hello
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -52,7 +46,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    fun showNotification(context: Context, title: String, body: String, intent: Intent) {
+    @Suppress("DEPRECATION")
+    private fun showNotification(context: Context, title: String, body: String, intent: Intent) {
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val notificationId = 1
         val channelId = "channel-01"
