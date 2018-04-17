@@ -28,6 +28,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.maps.android.PolyUtil;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -52,12 +53,18 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
     private List<Polyline> polylinePaths = new ArrayList<>();
     private ProgressDialog progressDialog;
 
-
     private static final String FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
     private static final String COURSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
     private Boolean mLocationPermissionsGranted = false;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
     private static View view;
+
+    private int numOfRoutes = 2;
+    //TODO set preferredRoute and bundle it up for sending to the FEEDBACK fragment
+    private Polyline preferredRoute;
+    double tolerance = 30; //meters
+
+
 
     @Nullable
     @Override
@@ -78,6 +85,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
         etDestination = (EditText) getView().findViewById(R.id.etDestination);
         MapFragment fragment = (MapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         fragment.getMapAsync(this);
+
+        getLocationPermission();
 
         btnFeedback.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -109,16 +118,46 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
         mMap = googleMap;
         LatLng clemson = new LatLng(34.6834, -82.8374);
 
-        getLocationPermission();
-
-        marker = mMap.addMarker(new MarkerOptions().position(clemson).title("Marker in " +
-                "Clemson"));
+        marker = mMap.addMarker(new MarkerOptions().position(clemson).title("Marker in " + "Clemson"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(clemson));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(clemson, 10));
         if (ContextCompat.checkSelfPermission(getActivity().getApplicationContext(), FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             mMap.setMyLocationEnabled(true);
         }
+
+        //TODO: set the clicked route/marker to the preferred route, when switching to feedback it is autoselected.
+        mMap.setOnPolylineClickListener(new GoogleMap.OnPolylineClickListener() {
+            @Override
+            public void onPolylineClick(Polyline polyline) {
+                preferredRoute = polyline;
+                polyline.setColor(Color.CYAN);
+                for (Polyline pline :polylinePaths) {
+                    if (!pline.equals(polyline)){
+                        pline.setColor(Color.GRAY);
+                    }
+                }
+            }
+        });
+
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                for(int i = 0; i < polylinePaths.size(); i++){
+                    if (PolyUtil.isLocationOnPath(marker.getPosition(), polylinePaths.get(i).getPoints(), true, tolerance)) {
+                       Toast.makeText(getActivity(), marker.getId(), Toast.LENGTH_SHORT).show();
+                       polylinePaths.get(i).setColor(Color.CYAN);
+                        for (Polyline pline :polylinePaths) {
+                            if (!pline.equals(polylinePaths.get(i))){
+                                pline.setColor(Color.GRAY);
+                            }
+                        }
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
     }
 
     @Override
@@ -149,6 +188,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
         String origin = etOrigin.getText().toString();
         String destination = etDestination.getText().toString();
         if (origin.isEmpty()) {
+            //TODO: set origin to current location if it is left blank
             Toast.makeText(getActivity(), "Please enter origin address!", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -174,33 +214,31 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
 
         Toast.makeText(getActivity(), "Directions found!", Toast.LENGTH_SHORT).show();
         //CHANGE NUMBER OF ROUTES
-        for (int i = 0; i < 2; i++) {
+        //Check that enough routes are generated
+        if (routes.size()<2){
+            Toast.makeText(getActivity(), "Could not generate Routes...", Toast.LENGTH_LONG).show();
+            return;
+        }
+        for (int i = 0; i < numOfRoutes; i++) {
             Route route = routes.get(i);
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(route.startLocation, 16));
 
             ((TextView) getView().findViewById(R.id.tvDistance)).setText(route.distance.text);   //For Distance
 
-            originMarkers.add(mMap.addMarker(new MarkerOptions()
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.start_blue))
-                    .title(route.startAddress)
-                    .position(route.startLocation)));
-
-            destinationMarkers.add(mMap.addMarker(new MarkerOptions()
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.end_green))
-                    .title(route.endAddress)
-                    .position(route.endLocation)));
-
-            /******************For Changing color ********************************************************/
-            mMap.setOnPolylineClickListener(new GoogleMap.OnPolylineClickListener() {
-                @Override
-                public void onPolylineClick(Polyline polyline) {
-                    // Flip the values of the red, green and blue components of the polyline's color.
-//                    polyline.setColor(Color.CYAN);
-                }
-
-            });
-
-            /*************************************************************************************************/
+            //show different labeled markers on each route
+            //WARNING: this works for only 2 routes!
+            if (i == 0){
+                originMarkers.add(mMap.addMarker(new MarkerOptions()
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.start_blue))
+                        .title("Put Metric Here")
+                        .position(route.points.get(route.points.size()/2))));
+            }
+            if (i == 1){
+                destinationMarkers.add(mMap.addMarker(new MarkerOptions()
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.end_green))
+                        .title("Put Metric Here")
+                        .position(route.points.get(route.points.size()/2))));
+            }
 
             int color;
             if(i == 0){
@@ -209,7 +247,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
                 color = Color.GRAY;
             }
 
-            /**/
             PolylineOptions polylineOptions = new PolylineOptions().
                     geodesic(true).color(color).width(15).clickable(true);
 
