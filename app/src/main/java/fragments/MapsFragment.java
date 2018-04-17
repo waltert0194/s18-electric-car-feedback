@@ -61,11 +61,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        if (view != null) {
-            ViewGroup parent = (ViewGroup) view.getParent();
-            if (parent != null)
-                parent.removeView(view);
-        }
         try {
             view = inflater.inflate(R.layout.fragment_maps, container, false);
         } catch (android.view.InflateException e) {
@@ -76,8 +71,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
         Button feedbackBtn = getView().findViewById(R.id.btnFeedback);
 
         feedbackBtn.setOnClickListener(new View.OnClickListener() {
@@ -87,6 +80,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
                 replaceFragment(fragment);
             }
         });
+
     }
 
     /**

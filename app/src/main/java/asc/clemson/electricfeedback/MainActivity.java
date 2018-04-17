@@ -11,6 +11,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import fragments.FeedbackFragment;
 import fragments.StartFragment;
 
 public class MainActivity extends AppCompatActivity
@@ -77,7 +78,8 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if  (id == R.id.nav_send) {
-
+            FragmentManager fm = getFragmentManager();
+            fm.beginTransaction().replace(R.id.content_frame, new FeedbackFragment()).commit();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

@@ -16,11 +16,6 @@ public class FeedbackFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        if (view != null) {
-            ViewGroup parent = (ViewGroup) view.getParent();
-            if (parent != null)
-                parent.removeView(view);
-        }
         try {
             view = inflater.inflate(R.layout.fragment_feedback, container, false);
         } catch (android.view.InflateException e) {

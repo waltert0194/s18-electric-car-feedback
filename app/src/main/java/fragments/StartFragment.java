@@ -33,11 +33,13 @@ public class StartFragment extends Fragment {
                 replaceFragment(fragment);
             }
         });
+
+
     }
 
     public void replaceFragment(Fragment someFragment) {
         android.app.FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        transaction.replace(R.id.start_frame, someFragment);
+        transaction.replace(R.id.content_frame, someFragment);
         transaction.addToBackStack(null);
         transaction.commit();
     }
