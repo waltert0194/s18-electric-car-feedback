@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -40,7 +41,7 @@ import asc.clemson.electricfeedback.R;
 public class MapsFragment extends Fragment implements OnMapReadyCallback, DirectionFinderListener {
 
 
-    private GoogleMap mMap;
+    GoogleMap mMap;
     private Marker marker;
     private Button btnFindPath;
     private Button btnFeedback;
@@ -61,19 +62,24 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        try {
-            view = inflater.inflate(R.layout.fragment_maps, container, false);
-        } catch (android.view.InflateException e) {
-            Toast.makeText(getActivity(), "PROBLEM", Toast.LENGTH_SHORT).show();
-        }
+        super.onCreate(savedInstanceState);
+         view = inflater.inflate(R.layout.fragment_maps, container, false);
+
         return view;
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        Button feedbackBtn = getView().findViewById(R.id.btnFeedback);
+        super.onViewCreated(view, savedInstanceState);
 
-        feedbackBtn.setOnClickListener(new View.OnClickListener() {
+        btnFeedback = getView().findViewById(R.id.btnFeedback);
+        btnFindPath = (Button) getView().findViewById(R.id.btnFindPath);
+        etOrigin = (EditText) getView().findViewById(R.id.etOrigin);
+        etDestination = (EditText) getView().findViewById(R.id.etDestination);
+        MapFragment fragment = (MapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+        fragment.getMapAsync(this);
+
+        btnFeedback.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Fragment fragment = new FeedbackFragment();
@@ -81,6 +87,12 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
             }
         });
 
+        btnFindPath.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendRequest();
+            }
+        });
     }
 
     /**
@@ -93,9 +105,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
      * installed Google Play services and returned to the app.
      */
     @Override
-    public void onMapReady(GoogleMap googleMap) {
+    public void onMapReady(final GoogleMap googleMap) {
         mMap = googleMap;
         LatLng clemson = new LatLng(34.6834, -82.8374);
+
+        getLocationPermission();
 
         marker = mMap.addMarker(new MarkerOptions().position(clemson).title("Marker in " +
                 "Clemson"));
@@ -198,7 +212,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
             /**/
             PolylineOptions polylineOptions = new PolylineOptions().
                     geodesic(true).color(color).width(15).clickable(true);
-
 
             for (int j = 0; j < route.points.size(); j++)
                 polylineOptions.add(route.points.get(j));
