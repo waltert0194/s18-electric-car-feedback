@@ -77,6 +77,16 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        Button feedbackBtn = getView().findViewById(R.id.btnFeedback);
+
+        feedbackBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Fragment fragment = new FeedbackFragment();
+                replaceFragment(fragment);
+            }
+        });
     }
 
     /**
@@ -237,5 +247,12 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
                 }
             }
         }
+    }
+
+    public void replaceFragment(Fragment someFragment) {
+        android.app.FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        transaction.replace(R.id.start_frame, someFragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 }
