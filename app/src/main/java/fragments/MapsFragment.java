@@ -41,7 +41,6 @@ import asc.clemson.electricfeedback.R;
 
 public class MapsFragment extends Fragment implements OnMapReadyCallback, DirectionFinderListener {
 
-
     GoogleMap mMap;
     private Marker marker;
     private Button btnFindPath;

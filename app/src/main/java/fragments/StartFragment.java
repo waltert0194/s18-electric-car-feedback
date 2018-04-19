@@ -34,6 +34,13 @@ public class StartFragment extends Fragment {
             }
         });
 
+        trackBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Fragment fragment = new TrackingFragment();
+                replaceFragment(fragment);
+            }
+        });
 
     }
 
