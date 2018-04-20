@@ -5,8 +5,8 @@
 
 
     <fragment
-        android:id="@+id/trackingFragment"
-        android:name="fragments.TrackingFragment"
+        android:id="@+id/mapTracking"
+        class="com.google.android.gms.maps.MapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentStart="true"
