@@ -34,6 +34,7 @@ import com.google.android.gms.location.LocationServices;
 
 import com.google.android.gms.tasks.Task;
 
+import Modules.TrackingService;
 import asc.clemson.electricfeedback.R;
 
 import static android.content.ContentValues.TAG;
@@ -172,7 +173,7 @@ public class TrackingFragment extends Fragment implements OnMapReadyCallback , L
     //Start the TrackerService//
 
     private void startTrackerService() {
-        getActivity().startService(new Intent(getActivity(), TrackingFragment.class));
+        getActivity().startService(new Intent(getActivity(), TrackingService.class));
 //Notify the user that tracking has been enabled//
         Toast.makeText(getActivity(), "GPS tracking active", Toast.LENGTH_SHORT).show();
     }

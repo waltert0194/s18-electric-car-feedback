@@ -13,6 +13,7 @@ import android.location.Location;
 import android.os.IBinder;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -53,8 +54,7 @@ public class TrackingService extends Service {
         String password = getString(R.string.test_password);
 
 //Call OnCompleteListener if the user is signed in successfully//
-        FirebaseAuth.getInstance().signInWithEmailAndPassword(
-                email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+        FirebaseAuth.getInstance().signInAnonymously().addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(Task<AuthResult> task) {
 //If the user has been authenticated...//
@@ -104,8 +104,7 @@ public class TrackingService extends Service {
         LocationRequest request = new LocationRequest();
 
 //Specify how often your app should request the device’s location//
-
-        request.setInterval(10000);
+        request.setInterval(500);
 
 //Get the most accurate location data available//
 
@@ -134,6 +133,9 @@ public class TrackingService extends Service {
 //Save the location data to the database//
 
                         ref.setValue(location);
+                        Toast.makeText(getBaseContext(), "Location Saved!", Toast.LENGTH_SHORT).show();
+                    }else{
+                        Toast.makeText(getBaseContext(),"FAILED", Toast.LENGTH_SHORT).show();
                     }
                 }
             }, null);
