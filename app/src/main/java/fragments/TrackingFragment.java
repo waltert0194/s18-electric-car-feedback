@@ -84,12 +84,12 @@ public class TrackingFragment extends Fragment implements OnMapReadyCallback , L
         if (ContextCompat.checkSelfPermission(getActivity().getApplicationContext(), FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             mMap.setMyLocationEnabled(true);
-            getDeviceLocation();
-            getPeriodicLocation(mLastKnownLocation);
+//            getDeviceLocation();
+//            getPeriodicLocation(mLastKnownLocation);
         }
-        LatLng myLocation = new LatLng(mLastKnownLocation.getLatitude(),mLastKnownLocation.getLongitude());
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(myLocation));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 10));
+//        LatLng myLocation = new LatLng(mLastKnownLocation.getLatitude(),mLastKnownLocation.getLongitude());
+//        mMap.moveCamera(CameraUpdateFactory.newLatLng(myLocation));
+//        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 10));
     }
 
     @SuppressLint("MissingPermission")
