@@ -19,6 +19,12 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import asc.clemson.electricfeedback.R;
 
@@ -78,7 +84,7 @@ public class TrackingService extends Service {
 
                 .setOngoing(true)
                 .setContentIntent(broadcastIntent)
-                .setSmallIcon(R.drawable.tracking_enabled);
+                .setSmallIcon(R.drawable.ic_distance);
         startForeground(1, builder.build());
     }
 
@@ -134,4 +140,4 @@ public class TrackingService extends Service {
         }
     }
 }
-}
+

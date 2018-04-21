@@ -163,7 +163,7 @@ public class TrackingFragment extends Fragment implements OnMapReadyCallback , L
                         }
                     }
                     mLocationPermissionGranted = true;
-                    startTrackingService();
+                    startTrackerService();
                 }
             }
         }
@@ -172,7 +172,7 @@ public class TrackingFragment extends Fragment implements OnMapReadyCallback , L
     //Start the TrackerService//
 
     private void startTrackerService() {
-        startService(new Intent(getActivity(), TrackingFragment.class));
+        getActivity().startService(new Intent(getActivity(), TrackingFragment.class));
 //Notify the user that tracking has been enabled//
         Toast.makeText(getActivity(), "GPS tracking active", Toast.LENGTH_SHORT).show();
     }
