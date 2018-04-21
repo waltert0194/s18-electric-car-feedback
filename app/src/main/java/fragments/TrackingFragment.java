@@ -1,10 +1,13 @@
 package fragments;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Fragment;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -16,6 +19,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -38,6 +44,9 @@ public class TrackingFragment extends Fragment implements OnMapReadyCallback , L
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
     private static final int DEFAULT_ZOOM = 15;
     private Location mLastKnownLocation;
+    private LocationManager locationManager;
+    private LocationCallback mLocationCallback;
+    private LocationRequest mLocationRequest;
     private static final String FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
     private static final String COURSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
     // Keys for storing activity state.
@@ -45,8 +54,8 @@ public class TrackingFragment extends Fragment implements OnMapReadyCallback , L
     private static final String KEY_LOCATION = "location";
     // The entry point to the Fused Location Provider.
     private FusedLocationProviderClient mFusedLocationProviderClient;
-
-
+    //Context
+    Context mContext;
 
 
     @Nullable
@@ -64,10 +73,8 @@ public class TrackingFragment extends Fragment implements OnMapReadyCallback , L
 
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
 
-
         MapFragment fragment = (MapFragment) getChildFragmentManager().findFragmentById(R.id.mapTracking);
         fragment.getMapAsync(this);
-
 
     }
 
@@ -77,12 +84,29 @@ public class TrackingFragment extends Fragment implements OnMapReadyCallback , L
         if (ContextCompat.checkSelfPermission(getActivity().getApplicationContext(), FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             mMap.setMyLocationEnabled(true);
+            getDeviceLocation();
+            getPeriodicLocation(mLastKnownLocation);
         }
         LatLng myLocation = new LatLng(mLastKnownLocation.getLatitude(),mLastKnownLocation.getLongitude());
         mMap.moveCamera(CameraUpdateFactory.newLatLng(myLocation));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 10));
-
     }
+
+    @SuppressLint("MissingPermission")
+    private void getPeriodicLocation(Location mLastKnownLocation) {
+        createLocationRequest();
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                .addLocationRequest(mLocationRequest);
+        mFusedLocationProviderClient.requestLocationUpdates(mLocationRequest, mLocationCallback, null);
+    }
+
+    protected void createLocationRequest() {
+        mLocationRequest = LocationRequest.create();
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setInterval(5000);
+        mLocationRequest.setFastestInterval(1000);
+    }
+
     /**
      * Get the best and most recent location of the device, which may be null in rare
      * cases when a location is not available.
@@ -100,6 +124,7 @@ public class TrackingFragment extends Fragment implements OnMapReadyCallback , L
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                                     new LatLng(mLastKnownLocation.getLatitude(),
                                             mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
+                            Toast.makeText(getActivity(), "Your Location Found!", Toast.LENGTH_SHORT).show();
                         } else {
                             Log.d(TAG, "Current location is null. Using defaults.");
                             Log.e(TAG, "Exception: %s", task.getException());
