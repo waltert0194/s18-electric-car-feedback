@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -36,6 +37,7 @@ import com.google.android.gms.tasks.Task;
 import asc.clemson.electricfeedback.R;
 
 import static android.content.ContentValues.TAG;
+import static android.content.Context.LOCATION_SERVICE;
 
 public class TrackingFragment extends Fragment implements OnMapReadyCallback , LocationListener{
     private static View view;
@@ -47,6 +49,7 @@ public class TrackingFragment extends Fragment implements OnMapReadyCallback , L
     private LocationManager locationManager;
     private LocationCallback mLocationCallback;
     private LocationRequest mLocationRequest;
+    private static final int PERMISSIONS_REQUEST = 100;
     private static final String FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
     private static final String COURSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
     // Keys for storing activity state.
@@ -72,6 +75,10 @@ public class TrackingFragment extends Fragment implements OnMapReadyCallback , L
         getLocationPermission();
 
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
+        LocationManager lm = (LocationManager) getActivity().getSystemService(LOCATION_SERVICE);
+        if (!lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            Toast.makeText(getActivity(),"GPS not started", Toast.LENGTH_SHORT).show();
+        }
 
         MapFragment fragment = (MapFragment) getChildFragmentManager().findFragmentById(R.id.mapTracking);
         fragment.getMapAsync(this);
@@ -84,28 +91,16 @@ public class TrackingFragment extends Fragment implements OnMapReadyCallback , L
         if (ContextCompat.checkSelfPermission(getActivity().getApplicationContext(), FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             mMap.setMyLocationEnabled(true);
-//            getDeviceLocation();
-//            getPeriodicLocation(mLastKnownLocation);
+            startTrackerService();
+        }else {
+            //If the app doesn’t currently have access to the user’s location, then request access//
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    PERMISSIONS_REQUEST);
         }
-//        LatLng myLocation = new LatLng(mLastKnownLocation.getLatitude(),mLastKnownLocation.getLongitude());
-//        mMap.moveCamera(CameraUpdateFactory.newLatLng(myLocation));
-//        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 10));
+
     }
 
-    @SuppressLint("MissingPermission")
-    private void getPeriodicLocation(Location mLastKnownLocation) {
-        createLocationRequest();
-        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
-                .addLocationRequest(mLocationRequest);
-        mFusedLocationProviderClient.requestLocationUpdates(mLocationRequest, mLocationCallback, null);
-    }
-
-    protected void createLocationRequest() {
-        mLocationRequest = LocationRequest.create();
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocationRequest.setInterval(5000);
-        mLocationRequest.setFastestInterval(1000);
-    }
 
     /**
      * Get the best and most recent location of the device, which may be null in rare
@@ -168,9 +163,18 @@ public class TrackingFragment extends Fragment implements OnMapReadyCallback , L
                         }
                     }
                     mLocationPermissionGranted = true;
+                    startTrackingService();
                 }
             }
         }
+    }
+
+    //Start the TrackerService//
+
+    private void startTrackerService() {
+        startService(new Intent(getActivity(), TrackingFragment.class));
+//Notify the user that tracking has been enabled//
+        Toast.makeText(getActivity(), "GPS tracking active", Toast.LENGTH_SHORT).show();
     }
     /**
      * Saves the state of the map when the activity is paused.
