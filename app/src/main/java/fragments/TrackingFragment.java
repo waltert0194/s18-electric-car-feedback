@@ -104,18 +104,12 @@ public class TrackingFragment extends Fragment implements OnMapReadyCallback , L
             @Override
             public void onClick(View view) {
                 stopTrackerService();
-                Toast.makeText(getActivity(), "Stop Service", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "GPS ", Toast.LENGTH_SHORT).show();
+
             }
         });
-
-        Button startingbutn = getView().findViewById(R.id.startingbutton);
-        startingbutn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startTrackerService();
-            }
-        });
-
+        //Start Tracking Service
+        startTrackerService();
     }
 
     @Override

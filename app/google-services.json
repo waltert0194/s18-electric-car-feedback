@@ -1,0 +1,63 @@
+{
+  "project_info": {
+    "project_number": "334887917657",
+    "firebase_url": "https://electric-cars-20ed8.firebaseio.com",
+    "project_id": "electric-cars-20ed8",
+    "storage_bucket": "electric-cars-20ed8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:334887917657:android:8887c63b2051c6d4",
+        "android_client_info": {
+          "package_name": "asc.clemson.electricfeedback"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "334887917657-8e6d0o7jakrsj4nnpolcvlardnkchhte.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "asc.clemson.electricfeedback",
+            "certificate_hash": "adcb87be3b5d869010e8ebf24b60af334eb52824"
+          }
+        },
+        {
+          "client_id": "334887917657-guasv5dhne7lj3g3lksiq3c2hqn7gnd9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "asc.clemson.electricfeedback",
+            "certificate_hash": "eb3c455bc1e9ebefe12134b7b6af6e296e9d34cf"
+          }
+        },
+        {
+          "client_id": "334887917657-5rq90q209ja3kjlrn2st39rbrdgb5k3l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDyDRxGXTC5mk9l_QEpPo9wRGMdDpNZWQM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "334887917657-5rq90q209ja3kjlrn2st39rbrdgb5k3l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

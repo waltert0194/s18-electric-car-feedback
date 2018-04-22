@@ -17,22 +17,13 @@
         android:layout_marginTop="0dp" />
 
     <Button
-        android:id="@+id/startingbutton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginBottom="64dp"
-        android:layout_marginStart="21dp"
-        android:text="Start Service" />
-
-    <Button
         android:id="@+id/endingButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
-        android:layout_alignTop="@+id/startingbutton"
-        android:layout_marginEnd="29dp"
+        android:layout_marginBottom="74dp"
+        android:layout_marginEnd="71dp"
         android:text="End Service" />
 
 </RelativeLayout>
