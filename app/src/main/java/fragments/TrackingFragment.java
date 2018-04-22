@@ -2,22 +2,34 @@ package fragments;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Fragment;
+import android.app.IntentService;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.Service;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.gms.location.LocationCallback;
@@ -39,11 +51,13 @@ import asc.clemson.electricfeedback.R;
 
 import static android.content.ContentValues.TAG;
 import static android.content.Context.LOCATION_SERVICE;
+import static android.content.Context.NOTIFICATION_SERVICE;
 
 public class TrackingFragment extends Fragment implements OnMapReadyCallback , LocationListener{
     private static View view;
     GoogleMap mMap;
     private boolean mLocationPermissionGranted = false;
+    private boolean stopServiceBool = false;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
     private static final int DEFAULT_ZOOM = 15;
     private Location mLastKnownLocation;
@@ -84,6 +98,24 @@ public class TrackingFragment extends Fragment implements OnMapReadyCallback , L
         MapFragment fragment = (MapFragment) getChildFragmentManager().findFragmentById(R.id.mapTracking);
         fragment.getMapAsync(this);
 
+
+        Button feedbackBtn = getView().findViewById(R.id.endingButton);
+        feedbackBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                stopTrackerService();
+                Toast.makeText(getActivity(), "Stop Service", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        Button startingbutn = getView().findViewById(R.id.startingbutton);
+        startingbutn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startTrackerService();
+            }
+        });
+
     }
 
     @Override
@@ -92,7 +124,6 @@ public class TrackingFragment extends Fragment implements OnMapReadyCallback , L
         if (ContextCompat.checkSelfPermission(getActivity().getApplicationContext(), FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             mMap.setMyLocationEnabled(true);
-            startTrackerService();
         }else {
             //If the app doesn’t currently have access to the user’s location, then request access//
             ActivityCompat.requestPermissions(getActivity(),
@@ -164,29 +195,18 @@ public class TrackingFragment extends Fragment implements OnMapReadyCallback , L
                         }
                     }
                     mLocationPermissionGranted = true;
-                    startTrackerService();
                 }
             }
         }
     }
 
-    //Start the TrackerService//
+
+    private void stopTrackerService() {
+        getActivity().stopService(new Intent(getActivity(), TrackingService.class));
+    }
 
     private void startTrackerService() {
         getActivity().startService(new Intent(getActivity(), TrackingService.class));
-//Notify the user that tracking has been enabled//
-        Toast.makeText(getActivity(), "GPS tracking active", Toast.LENGTH_SHORT).show();
-    }
-    /**
-     * Saves the state of the map when the activity is paused.
-     */
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        if (mMap != null) {
-            outState.putParcelable(KEY_CAMERA_POSITION, mMap.getCameraPosition());
-            outState.putParcelable(KEY_LOCATION, mLastKnownLocation);
-            super.onSaveInstanceState(outState);
-        }
     }
 
 

@@ -2,17 +2,18 @@ package Modules;
 
 import android.Manifest;
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.os.Build;
 import android.os.IBinder;
+import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -20,88 +21,101 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 import asc.clemson.electricfeedback.R;
 
 public class TrackingService extends Service {
     private static final String TAG = TrackingService.class.getSimpleName();
+    private LocationRequest request;
+    private int count = 0;
+    FusedLocationProviderClient client;
+    LocationCallback mLocationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+
+            if (locationResult != null) {
+                Toast.makeText(getBaseContext(), "HELLO" +count , Toast.LENGTH_SHORT).show();
+                count++;
+            }
+        }
+    };
+
 
     public TrackingService() {
     }
 
     @Override
-    public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
-        throw new UnsupportedOperationException("Not yet implemented");
+    public void onDestroy() {
+        super.onDestroy();
+        client.removeLocationUpdates(mLocationCallback);
     }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+
 
     @Override
     public void onCreate() {
         super.onCreate();
-        buildNotification();
-        loginToFirebase();
+
     }
 
-    private void loginToFirebase() {
-//Authenticate with Firebase, using the email and password we created earlier//
-        String email = getString(R.string.test_email);
-        String password = getString(R.string.test_password);
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
 
-//Call OnCompleteListener if the user is signed in successfully//
-        FirebaseAuth.getInstance().signInAnonymously().addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(Task<AuthResult> task) {
-//If the user has been authenticated...//
-                if (task.isSuccessful()) {
-//...then call requestLocationUpdates//
-                    requestLocationUpdates();
-                } else {
-//If sign in fails, then log the error//
-                    Log.d(TAG, "Firebase authentication failed");
-                }
-            }
-        });
+//        buildNotification();
+        requestLocationUpdates();
+        return START_NOT_STICKY;
+
     }
+
 
     private void buildNotification() {
-        String stop = "stop";
-        registerReceiver(stopReceiver, new IntentFilter(stop));
-        PendingIntent broadcastIntent = PendingIntent.getBroadcast(
-                this, 0, new Intent(stop), PendingIntent.FLAG_UPDATE_CURRENT);
+        Intent notificationIntent = new Intent(this, TrackingService.class);
+        PendingIntent pendingIntent =
+                PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
-// Create the persistent notification//
-        Notification.Builder builder = new Notification.Builder(this)
-                .setContentTitle(getString(R.string.app_name))
-                .setContentText(getString(R.string.tracking_enabled_notif))
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            String CHANNEL_ID = "notifiyChannel";
+            CharSequence name = getString(R.string.channel_name);
+            String description = getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, name, importance);
+            mChannel.setDescription(description);
+            NotificationManager notificationManager = (NotificationManager) this.getSystemService(
+                    NOTIFICATION_SERVICE);
+            notificationManager.createNotificationChannel(mChannel);
 
+            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                    .setContentTitle(getString(R.string.app_name))
+                    .setContentText(getString(R.string.tracking_enabled_notif))
 //Make this notification ongoing so it can’t be dismissed by the user//
-
-                .setOngoing(true)
-                .setContentIntent(broadcastIntent)
-                .setSmallIcon(R.drawable.ic_distance);
-        startForeground(1, builder.build());
-    }
-
-    protected BroadcastReceiver stopReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-//Unregister the BroadcastReceiver when the notification is tapped//
-            unregisterReceiver(stopReceiver);
-
-//Stop the Service//
-            stopSelf();
+                    .setOngoing(true)
+                    .setContentIntent(pendingIntent)
+                    .setAutoCancel(true)
+                    .setSmallIcon(R.drawable.ic_distance);
+            notificationManager.notify(1, mBuilder.build());
+            startForeground(1, mBuilder.build());
         }
-    };
+        else {
+            Notification notification =
+                    new Notification.Builder(this)
+                            .setContentTitle(getText(R.string.channel_name))
+                            .setContentText(getText(R.string.channel_description))
+                            .setSmallIcon(R.drawable.ic_distance)
+                            .setContentIntent(pendingIntent)
+                            .build();
+
+            startForeground(1, notification);
+        }
+    }
 
 
     private void requestLocationUpdates() {
-        LocationRequest request = new LocationRequest();
+        request = new LocationRequest();
 
 //Specify how often your app should request the device’s location//
         request.setInterval(500);
@@ -109,7 +123,7 @@ public class TrackingService extends Service {
 //Get the most accurate location data available//
 
         request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        FusedLocationProviderClient client = LocationServices.getFusedLocationProviderClient(this);
+        client = LocationServices.getFusedLocationProviderClient(this);
         final String path = getString(R.string.firebase_path);
         int permission = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION);
@@ -120,25 +134,7 @@ public class TrackingService extends Service {
 
 //...then request location updates//
 
-            client.requestLocationUpdates(request, new LocationCallback() {
-                @Override
-                public void onLocationResult(LocationResult locationResult) {
-
-//Get a reference to the database, so your app can perform read and write operations//
-
-                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference(path);
-                    Location location = locationResult.getLastLocation();
-                    if (location != null) {
-
-//Save the location data to the database//
-
-                        ref.setValue(location);
-                        Toast.makeText(getBaseContext(), "Location Saved!", Toast.LENGTH_SHORT).show();
-                    }else{
-                        Toast.makeText(getBaseContext(),"FAILED", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            }, null);
+            client.requestLocationUpdates(request, mLocationCallback , null);
         }
     }
 }

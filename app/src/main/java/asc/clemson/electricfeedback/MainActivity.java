@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
 
 import fragments.FeedbackFragment;
 import fragments.StartFragment;
@@ -36,6 +37,7 @@ public class MainActivity extends AppCompatActivity
         //Set fragment on launch
         FragmentManager fm = getFragmentManager();
         fm.beginTransaction().replace(R.id.content_frame, new StartFragment()).commit();
+
 
     }
 
@@ -85,5 +87,10 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 }
