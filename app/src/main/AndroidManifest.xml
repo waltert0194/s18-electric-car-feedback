@@ -46,6 +46,10 @@
         <service
             android:name="Modules.TrackingService"
             android:enabled="true"
+            android:exported="true" />
+        <service
+            android:name="Modules.SendToDatabase"
+            android:enabled="true"
             android:exported="true"></service>
         <receiver
             android:name="Modules.StopServiceReceiver"
