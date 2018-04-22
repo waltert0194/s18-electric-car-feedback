@@ -1,6 +1,8 @@
 package Modules;
 
 import android.Manifest;
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -10,6 +12,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
@@ -21,11 +24,19 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import asc.clemson.electricfeedback.R;
+import fragments.FeedbackFragment;
 
 public class TrackingService extends Service {
     private static final String TAG = TrackingService.class.getSimpleName();
+
+    public ArrayList <LatLng> routeArray = new ArrayList<LatLng>();
+
     private LocationRequest request;
     private int count = 0;
     FusedLocationProviderClient client;
@@ -34,12 +45,22 @@ public class TrackingService extends Service {
             public void onLocationResult(LocationResult locationResult) {
 
             if (locationResult != null) {
-                Toast.makeText(getBaseContext(), "HELLO" +count , Toast.LENGTH_SHORT).show();
+                double lat = locationResult.getLastLocation().getLatitude();
+                double lng = locationResult.getLastLocation().getLongitude();
+                LatLng coordinate = new LatLng(lat, lng);
+                routeArray.add(coordinate);
+
+                Toast.makeText(getBaseContext(), "Lat:Lng = "+coordinate.latitude+ " ::: "+coordinate.longitude , Toast.LENGTH_SHORT).show();
+
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("routeKey", routeArray);
+                Intent intent = new Intent("routeIntent");
+                intent.putExtra("routeBundle", bundle);
+                sendBroadcast(intent);
                 count++;
             }
         }
     };
-
 
     public TrackingService() {
     }
@@ -71,7 +92,6 @@ public class TrackingService extends Service {
         return START_NOT_STICKY;
 
     }
-
 
     private void buildNotification() {
         Intent notificationIntent = new Intent(this, TrackingService.class);
@@ -117,7 +137,7 @@ public class TrackingService extends Service {
 
 //Specify how often your app should request the device’s location//
         request = new LocationRequest();
-        request.setInterval(500);
+        request.setInterval(150);
 
 //Get the most accurate location data available//
         request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -130,6 +150,7 @@ public class TrackingService extends Service {
         if (permission == PackageManager.PERMISSION_GRANTED) {
 //...then request location updates//
             client.requestLocationUpdates(request, mLocationCallback , null);
+
         }
     }
 }

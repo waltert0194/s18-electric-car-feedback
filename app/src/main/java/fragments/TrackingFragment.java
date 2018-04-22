@@ -10,9 +10,11 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -46,6 +48,8 @@ import com.google.android.gms.location.LocationServices;
 
 import com.google.android.gms.tasks.Task;
 
+import java.util.ArrayList;
+
 import Modules.TrackingService;
 import asc.clemson.electricfeedback.R;
 
@@ -74,6 +78,22 @@ public class TrackingFragment extends Fragment implements OnMapReadyCallback , L
     private FusedLocationProviderClient mFusedLocationProviderClient;
     //Context
     Context mContext;
+    ArrayList <LatLng> routeArray;
+
+    private BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            routeArray = new ArrayList<LatLng>();
+            Bundle bundle = new Bundle();
+            bundle = intent.getBundleExtra("routeBundle");
+
+            routeArray = bundle.getParcelableArrayList("routeKey");
+
+
+            //TODO: Draw ploy line
+
+        }
+    };
 
 
     @Nullable
@@ -81,6 +101,8 @@ public class TrackingFragment extends Fragment implements OnMapReadyCallback , L
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         view = inflater.inflate(R.layout.fragment_tracking, container, false);
+        //get the route from the service
+        getActivity().registerReceiver(receiver, new IntentFilter("routeIntent"));
         return view;
     }
 
@@ -98,18 +120,38 @@ public class TrackingFragment extends Fragment implements OnMapReadyCallback , L
         MapFragment fragment = (MapFragment) getChildFragmentManager().findFragmentById(R.id.mapTracking);
         fragment.getMapAsync(this);
 
-
         Button feedbackBtn = getView().findViewById(R.id.endingButton);
         feedbackBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 stopTrackerService();
-                Toast.makeText(getActivity(), "GPS ", Toast.LENGTH_SHORT).show();
-
+                Toast.makeText(getActivity(), "GPS Track Stopped", Toast.LENGTH_SHORT).show();
+                startFeebackFragment();
             }
         });
+
+
         //Start Tracking Service
         startTrackerService();
+
+
+    }
+
+    private void startFeebackFragment() {
+        Bundle bundle = new Bundle();
+//        bundle.putSerializable("trackedBundle",routeArray);
+
+        bundle.putParcelableArrayList("trackedBundle",routeArray);
+        Fragment fragment = new FeedbackFragment();
+        fragment.setArguments(bundle);
+        replaceFragment(fragment);
+    }
+
+    public void replaceFragment(Fragment someFragment) {
+        android.app.FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        transaction.replace(R.id.content_frame, someFragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 
     @Override
