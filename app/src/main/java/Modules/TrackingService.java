@@ -113,15 +113,13 @@ public class TrackingService extends Service {
         }
     }
 
-
     private void requestLocationUpdates() {
-        request = new LocationRequest();
 
 //Specify how often your app should request the device’s location//
+        request = new LocationRequest();
         request.setInterval(500);
 
 //Get the most accurate location data available//
-
         request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         client = LocationServices.getFusedLocationProviderClient(this);
         final String path = getString(R.string.firebase_path);
@@ -129,11 +127,8 @@ public class TrackingService extends Service {
                 Manifest.permission.ACCESS_FINE_LOCATION);
 
 //If the app currently has access to the location permission...//
-
         if (permission == PackageManager.PERMISSION_GRANTED) {
-
 //...then request location updates//
-
             client.requestLocationUpdates(request, mLocationCallback , null);
         }
     }
