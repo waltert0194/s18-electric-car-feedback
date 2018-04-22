@@ -95,6 +95,13 @@ public class TrackingFragment extends Fragment implements OnMapReadyCallback , L
         }
     };
 
+    BroadcastReceiver notreceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            ;
+        }
+    };
+
 
     @Nullable
     @Override

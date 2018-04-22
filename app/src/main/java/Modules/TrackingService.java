@@ -31,6 +31,7 @@ import java.util.List;
 
 import asc.clemson.electricfeedback.R;
 import fragments.FeedbackFragment;
+import fragments.TrackingFragment;
 
 public class TrackingService extends Service {
     private static final String TAG = TrackingService.class.getSimpleName();
@@ -87,16 +88,15 @@ public class TrackingService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-//        buildNotification();
+        buildNotification();
         requestLocationUpdates();
         return START_NOT_STICKY;
 
     }
 
     private void buildNotification() {
-        Intent notificationIntent = new Intent(this, TrackingService.class);
-        PendingIntent pendingIntent =
-                PendingIntent.getActivity(this, 0, notificationIntent, 0);
+        Intent notificationIntent = new Intent(this, StopServiceReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, (int) System.currentTimeMillis(), notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             String CHANNEL_ID = "notifiyChannel";
@@ -131,6 +131,7 @@ public class TrackingService extends Service {
 
             startForeground(1, notification);
         }
+        sendBroadcast(notificationIntent);
     }
 
     private void requestLocationUpdates() {
