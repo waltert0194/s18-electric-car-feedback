@@ -1,31 +1,19 @@
 package fragments;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.Fragment;
-import android.app.IntentService;
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -36,7 +24,6 @@ import android.widget.Toast;
 
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -55,7 +42,6 @@ import asc.clemson.electricfeedback.R;
 
 import static android.content.ContentValues.TAG;
 import static android.content.Context.LOCATION_SERVICE;
-import static android.content.Context.NOTIFICATION_SERVICE;
 
 public class TrackingFragment extends Fragment implements OnMapReadyCallback , LocationListener{
     private static View view;
@@ -88,10 +74,7 @@ public class TrackingFragment extends Fragment implements OnMapReadyCallback , L
             bundle = intent.getBundleExtra("routeBundle");
 
             routeArray = bundle.getParcelableArrayList("routeKey");
-
-
             //TODO: Draw ploy line
-
         }
     };
 
@@ -133,7 +116,7 @@ public class TrackingFragment extends Fragment implements OnMapReadyCallback , L
             public void onClick(View view) {
                 stopTrackerService();
                 Toast.makeText(getActivity(), "GPS Track Stopped", Toast.LENGTH_SHORT).show();
-                startFeebackFragment();
+                startFeedbackFragment();
             }
         });
 
@@ -141,13 +124,10 @@ public class TrackingFragment extends Fragment implements OnMapReadyCallback , L
         //Start Tracking Service
         startTrackerService();
 
-
     }
 
-    private void startFeebackFragment() {
+    private void startFeedbackFragment() {
         Bundle bundle = new Bundle();
-//        bundle.putSerializable("trackedBundle",routeArray);
-
         bundle.putParcelableArrayList("trackedBundle",routeArray);
         Fragment fragment = new FeedbackFragment();
         fragment.setArguments(bundle);
@@ -173,7 +153,6 @@ public class TrackingFragment extends Fragment implements OnMapReadyCallback , L
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSIONS_REQUEST);
         }
-
     }
 
 

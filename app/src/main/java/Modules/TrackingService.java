@@ -131,13 +131,12 @@ public class TrackingService extends Service {
 
             startForeground(1, notification);
         }
-        sendBroadcast(notificationIntent);
     }
 
     private void requestLocationUpdates() {
 
 //Specify how often your app should request the device’s location//
-        request = new LocationRequest();
+        request = LocationRequest.create();
         request.setInterval(150);
 
 //Get the most accurate location data available//
