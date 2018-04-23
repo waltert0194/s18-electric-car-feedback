@@ -62,6 +62,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
     //TODO set preferredRoute and bundle it up for sending to the FEEDBACK fragment
     private Polyline preferredRoute;
     double tolerance = 30; //meters
+    List<Route> backupRoutes = null;
 
 
 
@@ -131,9 +132,18 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
             public void onPolylineClick(Polyline polyline) {
                 preferredRoute = polyline;
                 polyline.setColor(Color.CYAN);
+                if (polyline.getTag()=="P1")
+                {
+                    ((TextView) getView().findViewById(R.id.tvDistance)).setText(backupRoutes.get(0).duration.text);   //For Distance
+                    ((TextView) getView().findViewById(R.id.tvDuration)).setText(backupRoutes.get(0).duration.text);    //Show time
+                }else if (polyline.getTag()=="P2") {
+                    ((TextView) getView().findViewById(R.id.tvDistance)).setText(backupRoutes.get(1).duration.text);   //For Distance
+                    ((TextView) getView().findViewById(R.id.tvDuration)).setText(backupRoutes.get(1).duration.text);    //Show time
+                }
+
                 for (Polyline pline :polylinePaths) {
-                    if (!pline.equals(polyline)){
-                        pline.setColor(Color.GRAY);
+                    if (!pline.equals(polyline)){ //if pline is not the one we clicked on
+                        pline.setColor(Color.GRAY); //set all other polylines to grey
                     }
                 }
             }
@@ -146,6 +156,14 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
                     if (PolyUtil.isLocationOnPath(marker.getPosition(), polylinePaths.get(i).getPoints(), true, tolerance)) {
                        Toast.makeText(getActivity(), marker.getId(), Toast.LENGTH_SHORT).show();
                        polylinePaths.get(i).setColor(Color.CYAN);
+                        if (polylinePaths.get(i).getTag()=="P1")
+                        {
+                            ((TextView) getView().findViewById(R.id.tvDistance)).setText(backupRoutes.get(0).duration.text);   //For Distance
+                            ((TextView) getView().findViewById(R.id.tvDuration)).setText(backupRoutes.get(0).duration.text);    //Show time
+                        }else if (polylinePaths.get(i).getTag()=="P2") {
+                            ((TextView) getView().findViewById(R.id.tvDistance)).setText(backupRoutes.get(1).duration.text);   //For Distance
+                            ((TextView) getView().findViewById(R.id.tvDuration)).setText(backupRoutes.get(1).duration.text);    //Show time
+                        }
                         for (Polyline pline :polylinePaths) {
                             if (!pline.equals(polylinePaths.get(i))){
                                 pline.setColor(Color.GRAY);
@@ -210,6 +228,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
         polylinePaths = new ArrayList<>();
         originMarkers = new ArrayList<>();
         destinationMarkers = new ArrayList<>();
+        backupRoutes = routes;
 
         Toast.makeText(getActivity(), "Directions found!", Toast.LENGTH_SHORT).show();
         //CHANGE NUMBER OF ROUTES
@@ -223,7 +242,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(route.startLocation, 16));
 
             ((TextView) getView().findViewById(R.id.tvDistance)).setText(route.distance.text);   //For Distance
-
+            ((TextView) getView().findViewById(R.id.tvDuration)).setText(route.duration.text);
             //show different labeled markers on each route
             //WARNING: this works for only 2 routes!
             if (i == 0){
@@ -252,8 +271,13 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
             for (int j = 0; j < route.points.size(); j++)
                 polylineOptions.add(route.points.get(j));
 
+
             polylinePaths.add(mMap.addPolyline(polylineOptions));
 
+            if (i == 0){
+                polylinePaths.get(i).setTag("P1"); }
+            if (i == 1){
+                polylinePaths.get(i).setTag("P2"); }
         }
     }
 

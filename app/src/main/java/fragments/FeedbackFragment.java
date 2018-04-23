@@ -30,9 +30,11 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.maps.android.PolyUtil;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -54,10 +56,9 @@ public class FeedbackFragment extends Fragment implements OnMapReadyCallback, Di
     private int numOfRoutes = 2;
     private List<Polyline> polylinePaths = new ArrayList<>();
     GoogleMap mMap;
+    private Polyline preferredRoute;
+    double tolerance = 30; //meters
     //private List<Polyline> polylinePaths = new ArrayList<r>();
-
-
-
 
     @Nullable
     @Override
@@ -68,8 +69,16 @@ public class FeedbackFragment extends Fragment implements OnMapReadyCallback, Di
             Toast.makeText(getActivity(), "PROBLEM", Toast.LENGTH_SHORT).show();
         }
 
+        //catch for arguments
         Bundle bundle = getArguments();
-        routeArray = bundle.getParcelableArrayList("trackedBundle");
+        if (bundle != null){
+            if (bundle.containsKey("trackedBundle")){
+                routeArray = bundle.getParcelableArrayList("trackedBundle");
+            }
+        }else
+        {
+            Toast.makeText(getActivity(), "no Args",Toast.LENGTH_LONG).show();
+        }
 
         return view;
     }
@@ -102,16 +111,26 @@ public class FeedbackFragment extends Fragment implements OnMapReadyCallback, Di
     public void onDirectionFinderSuccess(List<Route> routes) {
         Route route = routes.get(0);
 
-        PolylineOptions polylineOptions = new PolylineOptions().
+        PolylineOptions trackedPolylineOptions = new PolylineOptions();
+
+// Create polyline options with existing LatLng ArrayList
+        trackedPolylineOptions.addAll(routeArray);
+        trackedPolylineOptions
+                .width(15)
+                .color(Color.RED);
+        mMap.addPolyline(trackedPolylineOptions);
+
+        PolylineOptions generatedPolylineOptions = new PolylineOptions().
                 geodesic(true)
                 .color(Color.BLUE)
                 .width(15)
                 .clickable(true);
 
         for (int j = 0; j < route.points.size(); j++)
-            polylineOptions.add(route.points.get(j));
+            generatedPolylineOptions.add(route.points.get(j));
 
-        polylinePaths.add(mMap.addPolyline(polylineOptions));
+        polylinePaths.add(mMap.addPolyline(generatedPolylineOptions));
+        polylinePaths.add(mMap.addPolyline(trackedPolylineOptions));
     }
 
     @Override
@@ -120,28 +139,8 @@ public class FeedbackFragment extends Fragment implements OnMapReadyCallback, Di
         if(ContextCompat.checkSelfPermission(getActivity().getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION)== PackageManager.PERMISSION_GRANTED){
             mMap.setMyLocationEnabled(true);
         }
-        //polylinePaths = new ArrayList<>();
-        //ArrayList<LatLng> coordList = new ArrayList<LatLng>();
 
-// Adding points to ArrayList
-        //coordList.add(new LatLng(0, 0));
-       // coordList.add(new LatLng(1, 1));
-       // coordList.add(new LatLng(2, 2));
-// etc...
-
-// Find map fragment. This line work only with support library
-        // GoogleMap gMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
-
-        PolylineOptions polylineOptions1 = new PolylineOptions();
-
-// Create polyline options with existing LatLng ArrayList
-        polylineOptions1.addAll(routeArray);
-        polylineOptions1
-                .width(5)
-                .color(Color.RED);
-
-// Adding multiple points in map using polyline and arraylist
-        mMap.addPolyline(polylineOptions1);
+        //convert LatLng to plain text address
         String oriName = null;
         String destName = null;
         double oriLat = routeArray.get(0).latitude;
@@ -192,18 +191,47 @@ public class FeedbackFragment extends Fragment implements OnMapReadyCallback, Di
             e.printStackTrace();
         }
 
-
         try {
-            Log.d("ORI",oriName);
-            Log.d("DEST",destName);
+//            Log.d("ORI",oriName);
+//            Log.d("DEST",destName);
             new DirectionFinder(this, oriName, destName).execute();
 
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
+            Toast.makeText(getActivity(), "Failed to find Directions", Toast.LENGTH_SHORT).show();
         }
 
+        //TODO: set the clicked route/marker to the preferred route, when switching to feedback it is autoselected.
+        mMap.setOnPolylineClickListener(new GoogleMap.OnPolylineClickListener() {
+            @Override
+            public void onPolylineClick(Polyline polyline) {
+                preferredRoute = polyline;
+                polyline.setColor(Color.CYAN);
+                for (Polyline pline :polylinePaths) {
+                    if (!pline.equals(polyline)){
+                        pline.setColor(Color.GRAY);
+                    }
+                }
+            }
+        });
+
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                for(int i = 0; i < polylinePaths.size(); i++){
+                    if (PolyUtil.isLocationOnPath(marker.getPosition(), polylinePaths.get(i).getPoints(), true, tolerance)) {
+                        Toast.makeText(getActivity(), marker.getId(), Toast.LENGTH_SHORT).show();
+                        polylinePaths.get(i).setColor(Color.CYAN);
+                        for (Polyline pline :polylinePaths) {
+                            if (!pline.equals(polylinePaths.get(i))){
+                                pline.setColor(Color.GRAY);
+                            }
+                        }
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
     }
-
-
-
 }
