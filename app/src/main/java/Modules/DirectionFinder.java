@@ -1,6 +1,8 @@
 package Modules;
 
 import android.os.AsyncTask;
+import android.util.Log;
+
 import com.google.android.gms.maps.model.LatLng;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,7 +42,6 @@ public class DirectionFinder {
     private String createUrl() throws UnsupportedEncodingException {
         String urlOrigin = URLEncoder.encode(origin, "utf-8");
         String urlDestination = URLEncoder.encode(destination, "utf-8");
-
         return DIRECTION_URL_API + "origin=" + urlOrigin + "&destination=" + urlDestination +"&alternatives=true" +"&key=" + GOOGLE_API_KEY;
     }
 

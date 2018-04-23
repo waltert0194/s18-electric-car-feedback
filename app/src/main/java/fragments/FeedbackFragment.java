@@ -7,11 +7,14 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,13 +34,17 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import Modules.DirectionFinder;
 import Modules.DirectionFinderListener;
 import Modules.Route;
 import asc.clemson.electricfeedback.R;
+
+import static android.content.ContentValues.TAG;
 
 public class FeedbackFragment extends Fragment implements OnMapReadyCallback, DirectionFinderListener{
     private static View view;
@@ -130,36 +137,73 @@ public class FeedbackFragment extends Fragment implements OnMapReadyCallback, Di
 // Create polyline options with existing LatLng ArrayList
         polylineOptions1.addAll(routeArray);
         polylineOptions1
-                .width(50)
+                .width(5)
                 .color(Color.RED);
 
 // Adding multiple points in map using polyline and arraylist
         mMap.addPolyline(polylineOptions1);
+        String oriName = null;
+        String destName = null;
+        double oriLat = routeArray.get(0).latitude;
+        double oriLng = routeArray.get(0).longitude;
+        double destLat = routeArray.get(routeArray.size()-1).latitude;
+        double destLng = routeArray.get(routeArray.size()-1).longitude;
+        //Get origin address base on location
+        try{
+            Geocoder geo = new Geocoder(FeedbackFragment.this.getActivity(), Locale.getDefault());
+            List<Address> addresses = geo.getFromLocation(oriLat, oriLng, 1);
+            if (addresses.isEmpty()) {
+                Toast.makeText(getActivity(), "address is empty", Toast.LENGTH_SHORT).show();
+            }
+            else {
+                if (addresses.size() > 0) {
+                    oriName = addresses.get(0).getFeatureName()
+                            + ", "
+                            + addresses.get(0).getLocality()
+                            + ","
+                            + addresses.get(0).getAdminArea()
+                            + addresses.get(0).getCountryName();
+                }
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        //Get origin address base on location
+        try{
+            Geocoder geo = new Geocoder(FeedbackFragment.this.getActivity(), Locale.getDefault());
+            List<Address> addresses = geo.getFromLocation(destLat, destLng, 1);
+            if (addresses.isEmpty()) {
+                Toast.makeText(getActivity(), "address is empty", Toast.LENGTH_SHORT).show();
+            }
+            else {
+                if (addresses.size() > 0) {
+                    destName = addresses.get(0).getFeatureName()
+                            + ", "
+                            + addresses.get(0).getLocality()
+                            + ","
+                            + addresses.get(0).getAdminArea()
+                            + addresses.get(0).getCountryName();
+                }
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
 
 
-        //PolylineOptions polylineOptions2 = new PolylineOptions();
-        new DirectionFinder(this, routeArray.get(0).toString(), routeArray.get(routeArray.size()-1).toString());//.execute();
-        //polylineOptions2.add(routeArray.get(0));
-        //polylineOptions2.add(routeArray.get(routeArray.size()-1));
-       // polylineOptions2
-        //        .width(50)
-        //        .color(Color.BLUE);
+        try {
+            Log.d("ORI",oriName);
+            Log.d("DEST",destName);
+            new DirectionFinder(this, oriName, destName).execute();
 
-        //mMap.addPolyline(polylineOptions2);
-
-       // PolylineOptions polylineOptions2 = new PolylineOptions()
-        //        .geodesic(true)
-         //       .color(Color.BLUE)
-          //      .width(15)
-          //      .clickable(true);
-
-      //  Route route = routes.get(0);
-      //  for (int j = 0; j < routes.points.size(); j++)
-      //      polylineOptions2.add(routes.points.get(j));
-
-       // polylinePaths.add(mMap.addPolyline(polylineOptions2));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
 
     }
+
 
 
 }
