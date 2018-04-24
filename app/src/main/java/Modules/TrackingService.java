@@ -10,6 +10,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
@@ -29,6 +30,7 @@ import com.google.android.gms.maps.model.LatLng;
 import java.util.ArrayList;
 import java.util.List;
 
+import asc.clemson.electricfeedback.MainActivity;
 import asc.clemson.electricfeedback.R;
 import fragments.FeedbackFragment;
 import fragments.TrackingFragment;
@@ -51,7 +53,7 @@ public class TrackingService extends Service {
                 LatLng coordinate = new LatLng(lat, lng);
                 routeArray.add(coordinate);
 
-                Toast.makeText(getBaseContext(), "Lat:Lng = "+coordinate.latitude+ " ::: "+coordinate.longitude , Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getBaseContext(), "Lat:Lng = "+coordinate.latitude+ " ::: "+coordinate.longitude , Toast.LENGTH_SHORT).show();
 
                 Bundle bundle = new Bundle();
                 bundle.putSerializable("routeKey", routeArray);
@@ -96,15 +98,18 @@ public class TrackingService extends Service {
 
     private void buildNotification() {
         Intent notificationIntent = new Intent(this, StopServiceReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, (int) System.currentTimeMillis(), notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                this, (int) System.currentTimeMillis(), notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        Intent feedbackIntent = new Intent(this, MainActivity.class);
+        PendingIntent feedbackPendingIntent = PendingIntent.getBroadcast(this, 0, feedbackIntent, 0);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             String CHANNEL_ID = "notifiyChannel";
             CharSequence name = getString(R.string.channel_name);
             String description = getString(R.string.channel_description);
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            int importance = NotificationManager.IMPORTANCE_LOW;
             NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, name, importance);
             mChannel.setDescription(description);
+            mChannel.enableVibration(false);
             NotificationManager notificationManager = (NotificationManager) this.getSystemService(
                     NOTIFICATION_SERVICE);
             notificationManager.createNotificationChannel(mChannel);
@@ -116,7 +121,8 @@ public class TrackingService extends Service {
                     .setOngoing(true)
                     .setContentIntent(pendingIntent)
                     .setAutoCancel(true)
-                    .setSmallIcon(R.drawable.ic_distance);
+                    .setSmallIcon(R.drawable.ic_distance)
+                    .addAction(R.mipmap.ic_launcher, "Leave Feedback", feedbackPendingIntent);
             notificationManager.notify(1, mBuilder.build());
             startForeground(1, mBuilder.build());
         }
@@ -137,7 +143,7 @@ public class TrackingService extends Service {
 
 //Specify how often your app should request the device’s location//
         request = LocationRequest.create();
-        request.setInterval(150);
+        request.setInterval(350);
 
 //Get the most accurate location data available//
         request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);

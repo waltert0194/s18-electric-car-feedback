@@ -58,7 +58,6 @@ public class FeedbackFragment extends Fragment implements OnMapReadyCallback, Di
     GoogleMap mMap;
     private Polyline preferredRoute;
     double tolerance = 30; //meters
-    //private List<Polyline> polylinePaths = new ArrayList<r>();
 
     @Nullable
     @Override
@@ -74,6 +73,9 @@ public class FeedbackFragment extends Fragment implements OnMapReadyCallback, Di
         if (bundle != null){
             if (bundle.containsKey("trackedBundle")){
                 routeArray = bundle.getParcelableArrayList("trackedBundle");
+            }
+            if (bundle.containsKey("passedBundle")){
+
             }
         }else
         {
@@ -104,7 +106,6 @@ public class FeedbackFragment extends Fragment implements OnMapReadyCallback, Di
 
     @Override
     public void onDirectionFinderStart() {
-
     }
 
     @Override
@@ -157,7 +158,6 @@ public class FeedbackFragment extends Fragment implements OnMapReadyCallback, Di
             else {
                 if (addresses.size() > 0) {
                     oriName = addresses.get(0).getFeatureName()
-                            + ", "
                             + addresses.get(0).getLocality()
                             + ","
                             + addresses.get(0).getAdminArea()
@@ -179,7 +179,6 @@ public class FeedbackFragment extends Fragment implements OnMapReadyCallback, Di
             else {
                 if (addresses.size() > 0) {
                     destName = addresses.get(0).getFeatureName()
-                            + ", "
                             + addresses.get(0).getLocality()
                             + ","
                             + addresses.get(0).getAdminArea()
@@ -192,8 +191,8 @@ public class FeedbackFragment extends Fragment implements OnMapReadyCallback, Di
         }
 
         try {
-//            Log.d("ORI",oriName);
-//            Log.d("DEST",destName);
+            Log.d("ORI",oriName);
+            Log.d("DEST",destName);
             new DirectionFinder(this, oriName, destName).execute();
 
         } catch (UnsupportedEncodingException e) {

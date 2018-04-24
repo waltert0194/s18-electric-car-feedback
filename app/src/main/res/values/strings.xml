@@ -34,9 +34,10 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="enter_destination_address">Enter destination address</string>
     <string name="firebase_path">location</string>
-    <string name="tracking_enabled_notif">Tracking is currently enabled!</string>
+    <string name="tracking_enabled_notif">Tracking is currently enabled. Tap to stop.</string>
     <string name="test_email">test@test.com</string>
     <string name="test_password">testpass</string>
     <string name="channel_name">Background GPS Tracking</string>
     <string name="channel_description">notification_description</string>
+    <string name="nav_menu_return_to_welcome">Return to Welcome Page</string>
 </resources>

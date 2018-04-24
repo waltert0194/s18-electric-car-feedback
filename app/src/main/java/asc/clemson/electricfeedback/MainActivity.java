@@ -33,6 +33,9 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        Menu menu = navigationView.getMenu();
+        MenuItem nav_send = menu.findItem(R.id.nav_send);
+        nav_send.setTitle(R.string.nav_menu_return_to_welcome);
 
         //Set fragment on launch
         FragmentManager fm = getFragmentManager();
@@ -81,7 +84,7 @@ public class MainActivity extends AppCompatActivity
 
         if  (id == R.id.nav_send) {
             FragmentManager fm = getFragmentManager();
-            fm.beginTransaction().replace(R.id.content_frame, new FeedbackFragment()).commit();
+            fm.beginTransaction().replace(R.id.content_frame, new StartFragment()).commit();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

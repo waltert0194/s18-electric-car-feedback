@@ -3,6 +3,7 @@ package fragments;
 import android.Manifest;
 import android.app.Fragment;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -100,6 +102,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
             @Override
             public void onClick(View v) {
                 sendRequest();
+                //Hide keyboard
+                InputMethodManager inputManager = (InputMethodManager)
+                        getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(),
+                        InputMethodManager.HIDE_NOT_ALWAYS);
             }
         });
     }
