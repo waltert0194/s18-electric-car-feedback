@@ -38,7 +38,8 @@ import asc.clemson.electricfeedback.R;
 
 public class ManualFeedbackFragment extends Fragment implements OnMapReadyCallback, DirectionFinderListener {
     private static View view;
-    private ArrayList<LatLng> routeArray;
+    private ArrayList<LatLng> preferredRouteArray;
+    private ArrayList<LatLng> otherRouteArray;
     private EditText optionalText;
     private List<Route> routes;
     private int numOfRoutes = 2;
@@ -59,11 +60,14 @@ public class ManualFeedbackFragment extends Fragment implements OnMapReadyCallba
         //catch for arguments
         Bundle bundle = getArguments();
         if (bundle != null){
-            if (bundle.containsKey("trackedBundle")){
-                routeArray = bundle.getParcelableArrayList("trackedBundle");
+//            if (bundle.containsKey("trackedBundle")){
+//                preferredRouteArray = bundle.getParcelableArrayList("trackedBundle");
+//            }
+            if (bundle.containsKey("preferredPoints")){
+                preferredRouteArray = bundle.getParcelableArrayList("preferredPoints");
             }
-            if (bundle.containsKey("passedBundle")){
-
+            if (bundle.containsKey("otherPoints")){
+                otherRouteArray = bundle.getParcelableArrayList("otherPoints");
             }
         }else
         {
@@ -103,7 +107,7 @@ public class ManualFeedbackFragment extends Fragment implements OnMapReadyCallba
         PolylineOptions trackedPolylineOptions = new PolylineOptions();
 
 // Create polyline options with existing LatLng ArrayList
-        trackedPolylineOptions.addAll(routeArray);
+        trackedPolylineOptions.addAll(preferredRouteArray);
         trackedPolylineOptions
                 .width(15)
                 .color(Color.RED);
@@ -132,10 +136,10 @@ public class ManualFeedbackFragment extends Fragment implements OnMapReadyCallba
         //convert LatLng to plain text address
         String oriName = null;
         String destName = null;
-        double oriLat = routeArray.get(0).latitude;
-        double oriLng = routeArray.get(0).longitude;
-        double destLat = routeArray.get(routeArray.size()-1).latitude;
-        double destLng = routeArray.get(routeArray.size()-1).longitude;
+        double oriLat = preferredRouteArray.get(0).latitude;
+        double oriLng = preferredRouteArray.get(0).longitude;
+        double destLat = preferredRouteArray.get(preferredRouteArray.size()-1).latitude;
+        double destLng = preferredRouteArray.get(preferredRouteArray.size()-1).longitude;
         //Get origin address base on location
         try{
             Geocoder geo = new Geocoder(ManualFeedbackFragment.this.getActivity(), Locale.getDefault());

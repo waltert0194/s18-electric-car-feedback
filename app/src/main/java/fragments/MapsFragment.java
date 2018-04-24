@@ -48,7 +48,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
 
     GoogleMap mMap;
     private Marker marker;
-    private Button btnFindPath;
     private Button btnFeedback;
     private EditText etOrigin;
     private EditText etDestination;
@@ -69,7 +68,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
     double tolerance = 30; //meters
     private List<Route> backupRoutes = null;
     private Boolean directionsFound = false;
-
 
 
     @Nullable
@@ -117,10 +115,27 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
     }
 
     private void packageUpFeedback() {
+        //bundle up the preferred route
+            //default preferred route is set to the first generated route
         ArrayList<LatLng> preferredPoints = new ArrayList<>();
         preferredPoints.addAll(preferredRoute.getPoints());
         Bundle bigBundle = new Bundle();
         bigBundle.putParcelableArrayList("preferredPoints", preferredPoints);
+
+        //bundle up the other route
+        ArrayList<LatLng> otherPoints = new ArrayList<>();
+        for (int i=0; i < polylinePaths.size(); i++) {
+            if (polylinePaths.get(i) != (preferredRoute)){
+                otherPoints.addAll(polylinePaths.get(i).getPoints());
+                bigBundle.putParcelableArrayList("otherPoints",otherPoints);
+            }
+        }
+
+        //switch to the ManualFeedbackFragment
+        Fragment fragment =  new ManualFeedbackFragment();
+        fragment.setArguments(bigBundle);
+        replaceFragment(fragment);
+
     }
 
     /**
@@ -294,7 +309,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
 
             for (int j = 0; j < route.points.size(); j++)
                 polylineOptions.add(route.points.get(j));
-
 
             polylinePaths.add(mMap.addPolyline(polylineOptions));
 
