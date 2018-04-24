@@ -15,60 +15,61 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/etOrigin"
-            android:hint="Enter origin address" />
+            android:hint="@string/enter_origin_address"
+            android:inputType="" />
 
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/enter_destination_address"
-            android:id="@+id/etDestination" />
+            android:id="@+id/etDestination"
+            android:inputType="" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             >
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Find path"
-                android:id="@+id/btnFindPath" />
 
             <ImageView
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
                 android:layout_marginTop="5dp"
+                android:contentDescription="@android:string/fingerprint_icon_content_description"
                 android:src="@drawable/ic_distance" />
 
             <TextView
                 android:id="@+id/tvDistance"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
-                android:text="0 km" />
+                android:layout_marginStart="5dp"
+                android:text="@string/_0_km" />
 
             <ImageView
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
                 android:layout_marginTop="5dp"
                 android:padding="5dp"
-                android:src="@drawable/ic_clock" />
+                android:src="@drawable/ic_clock"
+                android:contentDescription="TODO" />
             <TextView
-                android:layout_marginLeft="5dp"
+                android:layout_marginStart="5dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0 min"
+                android:text="@string/_0_min"
                 android:id="@+id/tvDuration" />
 
             <Button
                 android:id="@+id/btnFeedback"
-                android:layout_width="wrap_content"
+                style="@style/Widget.AppCompat.Button"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
                 android:layout_weight="1"
-                android:text="Feedback" />
+                android:backgroundTint="?attr/colorAccent"
+                android:text="@string/find_routes" />
         </LinearLayout>
 
         <fragment

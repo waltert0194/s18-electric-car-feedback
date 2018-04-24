@@ -1,10 +1,6 @@
 package fragments;
 
 import android.Manifest;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Address;
@@ -18,20 +14,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.android.PolyUtil;
@@ -46,9 +36,7 @@ import Modules.DirectionFinderListener;
 import Modules.Route;
 import asc.clemson.electricfeedback.R;
 
-import static android.content.ContentValues.TAG;
-
-public class FeedbackFragment extends Fragment implements OnMapReadyCallback, DirectionFinderListener{
+public class TrackingFeedbackFragment extends Fragment implements OnMapReadyCallback, DirectionFinderListener{
     private static View view;
     private ArrayList <LatLng> routeArray;
     private EditText optionalText;
@@ -150,7 +138,7 @@ public class FeedbackFragment extends Fragment implements OnMapReadyCallback, Di
         double destLng = routeArray.get(routeArray.size()-1).longitude;
         //Get origin address base on location
         try{
-            Geocoder geo = new Geocoder(FeedbackFragment.this.getActivity(), Locale.getDefault());
+            Geocoder geo = new Geocoder(TrackingFeedbackFragment.this.getActivity(), Locale.getDefault());
             List<Address> addresses = geo.getFromLocation(oriLat, oriLng, 1);
             if (addresses.isEmpty()) {
                 Toast.makeText(getActivity(), "address is empty", Toast.LENGTH_SHORT).show();
@@ -171,7 +159,7 @@ public class FeedbackFragment extends Fragment implements OnMapReadyCallback, Di
 
         //Get origin address base on location
         try{
-            Geocoder geo = new Geocoder(FeedbackFragment.this.getActivity(), Locale.getDefault());
+            Geocoder geo = new Geocoder(TrackingFeedbackFragment.this.getActivity(), Locale.getDefault());
             List<Address> addresses = geo.getFromLocation(destLat, destLng, 1);
             if (addresses.isEmpty()) {
                 Toast.makeText(getActivity(), "address is empty", Toast.LENGTH_SHORT).show();

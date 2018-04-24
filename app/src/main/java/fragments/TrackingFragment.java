@@ -129,7 +129,7 @@ public class TrackingFragment extends Fragment implements OnMapReadyCallback , L
     private void startFeedbackFragment() {
         Bundle bundle = new Bundle();
         bundle.putParcelableArrayList("trackedBundle",routeArray);
-        Fragment fragment = new FeedbackFragment();
+        Fragment fragment = new TrackingFeedbackFragment();
         fragment.setArguments(bundle);
         replaceFragment(fragment);
     }

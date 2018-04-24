@@ -5,7 +5,7 @@
     <string name="button1">Manually Enter Route</string>
     <string name="button2">Start Background Route Tracking</string>
     <string name="HomeScreenMessage">Welcome!</string>
-    <string name="HomeScreenInfo">Please click the button below to begin a new survey.</string>
+    <string name="HomeScreenInfo">Please select a routing method below to begin a new survey.</string>
     <string name="nav_header_desc">Anonymous route algorithm feedback for future electric car charging lanes.</string>
     <string name="nav_header_title">Electric Feedback</string>
     <string name="nav_header_subtitle">Clemson ACS Lab</string>
@@ -40,4 +40,9 @@
     <string name="channel_name">Background GPS Tracking</string>
     <string name="channel_description">notification_description</string>
     <string name="nav_menu_return_to_welcome">Return to Welcome Page</string>
+    <string name="leave_feedback">Leave Feedback</string>
+    <string name="_0_km">0 km</string>
+    <string name="_0_min">0 min</string>
+    <string name="find_routes">Find Routes</string>
+    <string name="enter_origin_address">Enter origin address</string>
 </resources>

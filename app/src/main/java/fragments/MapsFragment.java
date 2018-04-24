@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -34,11 +35,13 @@ import com.google.maps.android.PolyUtil;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import Modules.DirectionFinder;
 import Modules.DirectionFinderListener;
 import Modules.Route;
+import Modules.TrackingService;
 import asc.clemson.electricfeedback.R;
 
 public class MapsFragment extends Fragment implements OnMapReadyCallback, DirectionFinderListener {
@@ -64,7 +67,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
     //TODO set preferredRoute and bundle it up for sending to the FEEDBACK fragment
     private Polyline preferredRoute;
     double tolerance = 30; //meters
-    List<Route> backupRoutes = null;
+    private List<Route> backupRoutes = null;
+    private Boolean directionsFound = false;
 
 
 
@@ -73,6 +77,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
          view = inflater.inflate(R.layout.fragment_maps, container, false);
+         //end tracking service if user switches to manual tracking while service is active
+        getActivity().stopService(new Intent(getActivity(), TrackingService.class));
 
         return view;
     }
@@ -82,7 +88,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
         super.onViewCreated(view, savedInstanceState);
 
         btnFeedback = getView().findViewById(R.id.btnFeedback);
-        btnFindPath = (Button) getView().findViewById(R.id.btnFindPath);
         etOrigin = (EditText) getView().findViewById(R.id.etOrigin);
         etDestination = (EditText) getView().findViewById(R.id.etDestination);
         MapFragment fragment = (MapFragment) getChildFragmentManager().findFragmentById(R.id.map);
@@ -93,22 +98,29 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
         btnFeedback.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Fragment fragment = new FeedbackFragment();
-                replaceFragment(fragment);
-            }
-        });
+                if (directionsFound) {
+                    packageUpFeedback();
+                    //Fragment fragment = new ManualFeedbackFragment();
+//                       replaceFragment(fragment);
+                }else{
+                    sendRequest();
+                    //Hide keyboard
+                    InputMethodManager inputManager = (InputMethodManager)
+                            getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(),
+                            InputMethodManager.HIDE_NOT_ALWAYS);
 
-        btnFindPath.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sendRequest();
-                //Hide keyboard
-                InputMethodManager inputManager = (InputMethodManager)
-                        getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(),
-                        InputMethodManager.HIDE_NOT_ALWAYS);
+                }
+
             }
         });
+    }
+
+    private void packageUpFeedback() {
+        ArrayList<LatLng> preferredPoints = new ArrayList<>();
+        preferredPoints.addAll(preferredRoute.getPoints());
+        Bundle bigBundle = new Bundle();
+        bigBundle.putParcelableArrayList("preferredPoints", preferredPoints);
     }
 
     /**
@@ -161,7 +173,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
             public boolean onMarkerClick(Marker marker) {
                 for(int i = 0; i < polylinePaths.size(); i++){
                     if (PolyUtil.isLocationOnPath(marker.getPosition(), polylinePaths.get(i).getPoints(), true, tolerance)) {
-                       Toast.makeText(getActivity(), marker.getId(), Toast.LENGTH_SHORT).show();
+                       preferredRoute = polylinePaths.get(i);
                        polylinePaths.get(i).setColor(Color.CYAN);
                         if (polylinePaths.get(i).getTag()=="P1")
                         {
@@ -237,6 +249,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
         destinationMarkers = new ArrayList<>();
         backupRoutes = routes;
 
+        //update button
+        directionsFound = true;
+        TextView btnFeedbackText = getView().findViewById(R.id.btnFeedback);
+        btnFeedbackText.setText(R.string.leave_feedback);
+
         Toast.makeText(getActivity(), "Directions found!", Toast.LENGTH_SHORT).show();
         //CHANGE NUMBER OF ROUTES
         //Check that enough routes are generated
@@ -282,9 +299,12 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
             polylinePaths.add(mMap.addPolyline(polylineOptions));
 
             if (i == 0){
-                polylinePaths.get(i).setTag("P1"); }
+                polylinePaths.get(i).setTag("P1");
+                preferredRoute = polylinePaths.get(i);
+            }
             if (i == 1){
                 polylinePaths.get(i).setTag("P2"); }
+
         }
     }
 
