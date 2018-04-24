@@ -318,7 +318,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
             }
             if (i == 1){
                 polylinePaths.get(i).setTag("P2"); }
-
         }
     }
 

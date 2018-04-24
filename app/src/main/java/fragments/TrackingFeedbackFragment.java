@@ -106,12 +106,12 @@ public class TrackingFeedbackFragment extends Fragment implements OnMapReadyCall
         trackedPolylineOptions.addAll(routeArray);
         trackedPolylineOptions
                 .width(15)
-                .color(Color.RED);
+                .color(Color.BLUE);
         mMap.addPolyline(trackedPolylineOptions);
 
         PolylineOptions generatedPolylineOptions = new PolylineOptions().
                 geodesic(true)
-                .color(Color.BLUE)
+                .color(Color.RED)
                 .width(15)
                 .clickable(true);
 

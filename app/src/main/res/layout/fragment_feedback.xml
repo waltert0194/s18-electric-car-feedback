@@ -26,11 +26,12 @@
 
     <EditText
         android:id="@+id/optionalText"
+        style="@style/Widget.AppCompat.Light.AutoCompleteTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
-        android:backgroundTint="@color/common_google_signin_btn_text_light_default"
+        android:backgroundTint="#90383434"
         android:hint="Write optional Feedback for the ASC Lab"
         android:inputType="text|textMultiLine" />
 

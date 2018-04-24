@@ -32,11 +32,10 @@ import java.util.List;
 import java.util.Locale;
 
 import Modules.DirectionFinder;
-import Modules.DirectionFinderListener;
 import Modules.Route;
 import asc.clemson.electricfeedback.R;
 
-public class ManualFeedbackFragment extends Fragment implements OnMapReadyCallback, DirectionFinderListener {
+public class ManualFeedbackFragment extends Fragment implements OnMapReadyCallback {
     private static View view;
     private ArrayList<LatLng> preferredRouteArray;
     private ArrayList<LatLng> otherRouteArray;
@@ -60,9 +59,6 @@ public class ManualFeedbackFragment extends Fragment implements OnMapReadyCallba
         //catch for arguments
         Bundle bundle = getArguments();
         if (bundle != null){
-//            if (bundle.containsKey("trackedBundle")){
-//                preferredRouteArray = bundle.getParcelableArrayList("trackedBundle");
-//            }
             if (bundle.containsKey("preferredPoints")){
                 preferredRouteArray = bundle.getParcelableArrayList("preferredPoints");
             }
@@ -95,37 +91,28 @@ public class ManualFeedbackFragment extends Fragment implements OnMapReadyCallba
         fragment.getMapAsync(this);
     }
 
-
-    @Override
-    public void onDirectionFinderStart() {
-    }
-
-    @Override
-    public void onDirectionFinderSuccess(List<Route> routes) {
-        Route route = routes.get(0);
-
-        PolylineOptions trackedPolylineOptions = new PolylineOptions();
-
-// Create polyline options with existing LatLng ArrayList
-        trackedPolylineOptions.addAll(preferredRouteArray);
-        trackedPolylineOptions
+    private void drawPolylines() {
+        PolylineOptions preferredPolylineOptions = new PolylineOptions();
+// Create polyline options with the already selected LatLng ArrayList
+        preferredPolylineOptions.addAll(preferredRouteArray);
+        preferredPolylineOptions
                 .width(15)
-                .color(Color.RED);
-        mMap.addPolyline(trackedPolylineOptions);
+                .color(Color.BLUE);
+        mMap.addPolyline(preferredPolylineOptions);
 
-        PolylineOptions generatedPolylineOptions = new PolylineOptions().
-                geodesic(true)
-                .color(Color.BLUE)
+        PolylineOptions otherPolylineOptions = new PolylineOptions();
+// Create polyline options with the already selected LatLng ArrayList
+        otherPolylineOptions.addAll(otherRouteArray);
+        otherPolylineOptions
                 .width(15)
-                .clickable(true);
+                .color(Color.GRAY);
+        mMap.addPolyline(otherPolylineOptions);
 
-        for (int j = 0; j < route.points.size(); j++)
-            generatedPolylineOptions.add(route.points.get(j));
+        polylinePaths.add(mMap.addPolyline(preferredPolylineOptions));
+        polylinePaths.add(mMap.addPolyline(otherPolylineOptions));
 
-        polylinePaths.add(mMap.addPolyline(generatedPolylineOptions));
-        polylinePaths.add(mMap.addPolyline(trackedPolylineOptions));
+
     }
-
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -133,66 +120,9 @@ public class ManualFeedbackFragment extends Fragment implements OnMapReadyCallba
             mMap.setMyLocationEnabled(true);
         }
 
-        //convert LatLng to plain text address
-        String oriName = null;
-        String destName = null;
-        double oriLat = preferredRouteArray.get(0).latitude;
-        double oriLng = preferredRouteArray.get(0).longitude;
-        double destLat = preferredRouteArray.get(preferredRouteArray.size()-1).latitude;
-        double destLng = preferredRouteArray.get(preferredRouteArray.size()-1).longitude;
-        //Get origin address base on location
-        try{
-            Geocoder geo = new Geocoder(ManualFeedbackFragment.this.getActivity(), Locale.getDefault());
-            List<Address> addresses = geo.getFromLocation(oriLat, oriLng, 1);
-            if (addresses.isEmpty()) {
-                Toast.makeText(getActivity(), "address is empty", Toast.LENGTH_SHORT).show();
-            }
-            else {
-                if (addresses.size() > 0) {
-                    oriName = addresses.get(0).getFeatureName()
-                            + addresses.get(0).getLocality()
-                            + ","
-                            + addresses.get(0).getAdminArea()
-                            + addresses.get(0).getCountryName();
-                }
-            }
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+        //drawLines
+        drawPolylines();
 
-        //Get origin address base on location
-        try{
-            Geocoder geo = new Geocoder(ManualFeedbackFragment.this.getActivity(), Locale.getDefault());
-            List<Address> addresses = geo.getFromLocation(destLat, destLng, 1);
-            if (addresses.isEmpty()) {
-                Toast.makeText(getActivity(), "address is empty", Toast.LENGTH_SHORT).show();
-            }
-            else {
-                if (addresses.size() > 0) {
-                    destName = addresses.get(0).getFeatureName()
-                            + addresses.get(0).getLocality()
-                            + ","
-                            + addresses.get(0).getAdminArea()
-                            + addresses.get(0).getCountryName();
-                }
-            }
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        try {
-            Log.d("ORI",oriName);
-            Log.d("DEST",destName);
-            new DirectionFinder(this, oriName, destName).execute();
-
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            Toast.makeText(getActivity(), "Failed to find Directions", Toast.LENGTH_SHORT).show();
-        }
-
-        //TODO: set the clicked route/marker to the preferred route, when switching to feedback it is autoselected.
         mMap.setOnPolylineClickListener(new GoogleMap.OnPolylineClickListener() {
             @Override
             public void onPolylineClick(Polyline polyline) {
