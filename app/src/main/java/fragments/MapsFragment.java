@@ -7,11 +7,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,16 +23,21 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.maps.android.PolyUtil;
 
 import java.io.UnsupportedEncodingException;
@@ -43,6 +50,8 @@ import Modules.DirectionFinderListener;
 import Modules.Route;
 import Modules.TrackingService;
 import asc.clemson.electricfeedback.R;
+
+import static android.content.ContentValues.TAG;
 
 public class MapsFragment extends Fragment implements OnMapReadyCallback, DirectionFinderListener {
 
@@ -63,11 +72,13 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
     private static View view;
 
     private int numOfRoutes = 2;
-    //TODO set preferredRoute and bundle it up for sending to the FEEDBACK fragment
     private Polyline preferredRoute;
     double tolerance = 30; //meters
     private List<Route> backupRoutes = null;
     private Boolean directionsFound = false;
+    private FusedLocationProviderClient mFusedLocationProviderClient;
+    private Location mLastKnownLocation;
+
 
     @Nullable
     @Override
@@ -86,6 +97,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
 
         btnFeedback = getView().findViewById(R.id.btnFeedback);
         etOrigin = (EditText) getView().findViewById(R.id.etOrigin);
+        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
         etDestination = (EditText) getView().findViewById(R.id.etDestination);
         MapFragment fragment = (MapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         fragment.getMapAsync(this);
@@ -97,8 +109,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
             public void onClick(View view) {
                 if (directionsFound) {
                     packageUpFeedback();
-                    //Fragment fragment = new ManualFeedbackFragment();
-//                       replaceFragment(fragment);
                 }else{
                     sendRequest();
                     //Hide keyboard
@@ -147,14 +157,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
     @Override
     public void onMapReady(final GoogleMap googleMap) {
         mMap = googleMap;
-        LatLng clemson = new LatLng(34.6834, -82.8374);
 
-        marker = mMap.addMarker(new MarkerOptions().position(clemson).title("Marker in " + "Clemson"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(clemson));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(clemson, 10));
         if (ContextCompat.checkSelfPermission(getActivity().getApplicationContext(), FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             mMap.setMyLocationEnabled(true);
+            getDeviceLocation();
         }
 
         //TODO: set the clicked route/marker to the preferred route, when switching to feedback it is autoselected.
@@ -261,12 +268,15 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
         destinationMarkers = new ArrayList<>();
         backupRoutes = routes;
 
+        //autozoom
+        float zoomLevel = 10.0f; //This goes up to 21
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(routes.get(0).points.get(routes.get(0).points.size()/2), zoomLevel));
+
         //update button
         directionsFound = true;
         TextView btnFeedbackText = getView().findViewById(R.id.btnFeedback);
         btnFeedbackText.setText(R.string.leave_feedback);
-
-        Toast.makeText(getActivity(), "Directions found!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(), "Directions found! Please select your preferred route.", Toast.LENGTH_LONG).show();
         //CHANGE NUMBER OF ROUTES
         //Check that enough routes are generated
         if (routes.size()<2){
@@ -275,7 +285,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
         }
         for (int i = 0; i < numOfRoutes; i++) {
             Route route = routes.get(i);
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(route.startLocation, 16));
 
             ((TextView) getView().findViewById(R.id.tvDistance)).setText(route.distance.text);   //For Distance
             ((TextView) getView().findViewById(R.id.tvDuration)).setText(route.duration.text);
@@ -348,6 +357,36 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
                     mLocationPermissionsGranted = true;
                 }
             }
+        }
+    }
+
+    /**
+     * Get the best and most recent location of the device, which may be null in rare
+     * cases when a location is not available.
+     */
+    private void getDeviceLocation() {
+        try {
+            if (mLocationPermissionsGranted) {
+                Task<Location> locationResult = mFusedLocationProviderClient.getLastLocation();
+                locationResult.addOnCompleteListener(getActivity(), new OnCompleteListener<Location>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Location> task) {
+                        if (task.isSuccessful()) {
+                            // Set the map's camera position to the current location of the device.
+                            mLastKnownLocation = task.getResult();
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                                    new LatLng(mLastKnownLocation.getLatitude(),
+                                            mLastKnownLocation.getLongitude()), 15));
+
+                        } else {
+                            Log.d(TAG, "Current location is null. Using defaults.");
+                            Log.e(TAG, "Exception: %s", task.getException());
+                            }
+                    }
+                });
+            }
+        } catch (SecurityException e) {
+            Log.e("Exception: %s", e.getMessage());
         }
     }
 

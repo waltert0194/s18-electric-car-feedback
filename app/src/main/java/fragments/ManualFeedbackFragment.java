@@ -4,13 +4,10 @@ import android.Manifest;
 import android.app.Fragment;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.location.Address;
-import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,12 +25,9 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.android.PolyUtil;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
-import Modules.DirectionFinder;
 import Modules.Route;
 import asc.clemson.electricfeedback.R;
 
@@ -119,7 +113,6 @@ mMap.addMarker(new MarkerOptions()
     mMap.addMarker(new MarkerOptions()
             .icon(BitmapDescriptorFactory.fromResource(R.drawable.end_green))
             .position(otherRouteArray.get(otherRouteArray.size()/2)));
-
 
         polylinePaths.add(mMap.addPolyline(preferredPolylineOptions));
         polylinePaths.add(mMap.addPolyline(otherPolylineOptions));
