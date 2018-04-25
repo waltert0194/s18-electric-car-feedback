@@ -40,10 +40,10 @@
         <TextView
             android:id="@+id/textView3"
             android:layout_width="252dp"
-            android:layout_height="42dp"
+            android:layout_height="67dp"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="151dp"
+            android:layout_marginTop="126dp"
             android:text="@string/HomeScreenInfo"
             android:textAppearance="@android:style/TextAppearance.Material.Medium"
             app:layout_constraintBottom_toTopOf="@+id/button1"

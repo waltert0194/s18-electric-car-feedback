@@ -21,8 +21,10 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -72,9 +74,6 @@ public class TrackingFeedbackFragment extends Fragment implements OnMapReadyCall
             if (bundle != null){
                 if (bundle.containsKey("trackedBundle")){
                     routeArray = bundle.getParcelableArrayList("trackedBundle");
-                    List<LatLng> tempList = new ArrayList<LatLng>(routeArray);
-                    preferredRoute.setPoints(tempList.subList(0,routeArray.size()));
-
                 }
             }else
             {
@@ -82,6 +81,8 @@ public class TrackingFeedbackFragment extends Fragment implements OnMapReadyCall
             }
         }catch(java.lang.NullPointerException e){
             Toast.makeText(getActivity(),"Could not create Route, please try again",Toast.LENGTH_LONG).show();
+            Fragment fragment = new StartFragment();
+            replaceFragment(fragment);
         }
 
 
@@ -165,11 +166,21 @@ public class TrackingFeedbackFragment extends Fragment implements OnMapReadyCall
                 .color(Color.BLUE);
         mMap.addPolyline(trackedPolylineOptions);
 
+        // add clickable marker to route
+        mMap.addMarker(new MarkerOptions()
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.start_blue))
+                .position(routeArray.get(routeArray.size()/2)));
+
         PolylineOptions generatedPolylineOptions = new PolylineOptions().
                 geodesic(true)
                 .color(Color.RED)
                 .width(15)
                 .clickable(true);
+
+        // add clickable marker to route
+        mMap.addMarker(new MarkerOptions()
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.end_green))
+                .position(route.points.get(route.points.size()/2)));
 
         for (int j = 0; j < route.points.size(); j++) {
             generatedPolylineOptions.add(route.points.get(j));
@@ -250,7 +261,6 @@ public class TrackingFeedbackFragment extends Fragment implements OnMapReadyCall
             Toast.makeText(getActivity(), "Failed to find Directions", Toast.LENGTH_SHORT).show();
         }
 
-        //TODO: set the clicked route/marker to the preferred route, when switching to feedback it is autoselected.
         mMap.setOnPolylineClickListener(new GoogleMap.OnPolylineClickListener() {
             @Override
             public void onPolylineClick(Polyline polyline) {
@@ -269,7 +279,6 @@ public class TrackingFeedbackFragment extends Fragment implements OnMapReadyCall
             public boolean onMarkerClick(Marker marker) {
                 for(int i = 0; i < polylinePaths.size(); i++){
                     if (PolyUtil.isLocationOnPath(marker.getPosition(), polylinePaths.get(i).getPoints(), true, tolerance)) {
-                        Toast.makeText(getActivity(), marker.getId(), Toast.LENGTH_SHORT).show();
                         polylinePaths.get(i).setColor(Color.CYAN);
                         for (Polyline pline :polylinePaths) {
                             if (!pline.equals(polylinePaths.get(i))){
