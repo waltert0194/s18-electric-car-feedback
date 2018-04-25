@@ -8,12 +8,14 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -164,6 +166,11 @@ mMap.addMarker(new MarkerOptions()
 
         polylinePaths.add(mMap.addPolyline(preferredPolylineOptions));
         polylinePaths.add(mMap.addPolyline(otherPolylineOptions));
+
+        //autozoom
+        float zoomLevel = 10.0f; //This goes up to 21
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(preferredRouteArray.get(preferredRouteArray.size()/2), zoomLevel));
+
     }
 
     @Override
@@ -172,6 +179,7 @@ mMap.addMarker(new MarkerOptions()
         if(ContextCompat.checkSelfPermission(getActivity().getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION)== PackageManager.PERMISSION_GRANTED){
             mMap.setMyLocationEnabled(true);
         }
+
 
         //drawLines
         drawPolylines();
