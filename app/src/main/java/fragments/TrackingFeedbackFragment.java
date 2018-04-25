@@ -54,7 +54,7 @@ public class TrackingFeedbackFragment extends Fragment implements OnMapReadyCall
     private int numOfRoutes = 2;
     private List<Polyline> polylinePaths = new ArrayList<>();
     GoogleMap mMap;
-    private Polyline preferredRoute;
+    private Polyline preferredRoute ;
     double tolerance = 30; //meters
 
     @Nullable
@@ -68,18 +68,22 @@ public class TrackingFeedbackFragment extends Fragment implements OnMapReadyCall
 
         //catch for arguments
         Bundle bundle = getArguments();
-        if (bundle != null){
-            if (bundle.containsKey("trackedBundle")){
-                routeArray = bundle.getParcelableArrayList("trackedBundle");
-                preferredRoute.setPoints(routeArray.subList(0, routeArray.size()));
-            }
-            if (bundle.containsKey("passedBundle")){
+        try{
+            if (bundle != null){
+                if (bundle.containsKey("trackedBundle")){
+                    routeArray = bundle.getParcelableArrayList("trackedBundle");
+                    List<LatLng> tempList = new ArrayList<LatLng>(routeArray);
+                    preferredRoute.setPoints(tempList.subList(0,routeArray.size()));
 
+                }
+            }else
+            {
+                Toast.makeText(getActivity(), "no Args",Toast.LENGTH_LONG).show();
             }
-        }else
-        {
-            Toast.makeText(getActivity(), "no Args",Toast.LENGTH_LONG).show();
+        }catch(java.lang.NullPointerException e){
+            Toast.makeText(getActivity(),"Could not create Route, please try again",Toast.LENGTH_LONG).show();
         }
+
 
         return view;
     }
