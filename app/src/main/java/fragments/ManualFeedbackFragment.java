@@ -20,8 +20,10 @@ import android.widget.Toast;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.android.PolyUtil;
@@ -92,27 +94,37 @@ public class ManualFeedbackFragment extends Fragment implements OnMapReadyCallba
     }
 
     private void drawPolylines() {
+
         PolylineOptions preferredPolylineOptions = new PolylineOptions();
 // Create polyline options with the already selected LatLng ArrayList
         preferredPolylineOptions.addAll(preferredRouteArray);
         preferredPolylineOptions
                 .width(15)
-                .color(Color.BLUE);
+                .color(Color.CYAN);
         mMap.addPolyline(preferredPolylineOptions);
 
-        PolylineOptions otherPolylineOptions = new PolylineOptions();
+ // add clickable marker to route
+mMap.addMarker(new MarkerOptions()
+        .icon(BitmapDescriptorFactory.fromResource(R.drawable.start_blue))
+        .position(preferredRouteArray.get(preferredRouteArray.size()/2)));
+
 // Create polyline options with the already selected LatLng ArrayList
+        PolylineOptions otherPolylineOptions = new PolylineOptions();
         otherPolylineOptions.addAll(otherRouteArray);
         otherPolylineOptions
                 .width(15)
                 .color(Color.GRAY);
         mMap.addPolyline(otherPolylineOptions);
+    // add clickable marker to route
+    mMap.addMarker(new MarkerOptions()
+            .icon(BitmapDescriptorFactory.fromResource(R.drawable.end_green))
+            .position(otherRouteArray.get(otherRouteArray.size()/2)));
+
 
         polylinePaths.add(mMap.addPolyline(preferredPolylineOptions));
         polylinePaths.add(mMap.addPolyline(otherPolylineOptions));
-
-
     }
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;

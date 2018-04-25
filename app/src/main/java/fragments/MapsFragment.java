@@ -69,7 +69,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
     private List<Route> backupRoutes = null;
     private Boolean directionsFound = false;
 
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
@@ -77,7 +76,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
          view = inflater.inflate(R.layout.fragment_maps, container, false);
          //end tracking service if user switches to manual tracking while service is active
         getActivity().stopService(new Intent(getActivity(), TrackingService.class));
-
+        directionsFound = false;
         return view;
     }
 
@@ -107,7 +106,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
                             getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                     inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(),
                             InputMethodManager.HIDE_NOT_ALWAYS);
-
                 }
 
             }
@@ -135,7 +133,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
         Fragment fragment =  new ManualFeedbackFragment();
         fragment.setArguments(bigBundle);
         replaceFragment(fragment);
-
     }
 
     /**
@@ -287,19 +284,17 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Direct
             if (i == 0){
                 originMarkers.add(mMap.addMarker(new MarkerOptions()
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.start_blue))
-                        .title("Put Metric Here")
                         .position(route.points.get(route.points.size()/2))));
             }
             if (i == 1){
                 destinationMarkers.add(mMap.addMarker(new MarkerOptions()
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.end_green))
-                        .title("Put Metric Here")
                         .position(route.points.get(route.points.size()/2))));
             }
 
             int color;
             if(i == 0){
-                color = Color.BLUE;
+                color = Color.CYAN;
             }else{
                 color = Color.GRAY;
             }

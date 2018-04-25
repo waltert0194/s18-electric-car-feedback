@@ -45,4 +45,5 @@
     <string name="_0_min">0 min</string>
     <string name="find_routes">Find Routes</string>
     <string name="enter_origin_address">Enter origin address</string>
+    <string name="write_optional_feedback_for_the_asc_lab">Write optional Feedback for the ASC Lab</string>
 </resources>
