@@ -109,6 +109,7 @@ public class TrackingFragment extends Fragment implements OnMapReadyCallback , L
 
         MapFragment fragment = (MapFragment) getChildFragmentManager().findFragmentById(R.id.mapTracking);
         fragment.getMapAsync(this);
+        getDeviceLocation();
 
         Button feedbackBtn = getView().findViewById(R.id.endingButton);
         feedbackBtn.setOnClickListener(new View.OnClickListener() {

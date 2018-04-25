@@ -24,7 +24,7 @@
         android:clickable="true"
         android:focusable="true"
         android:src="@drawable/ic_menu_send"
-        app:backgroundTint="@color/common_google_signin_btn_text_light_disabled" />
+        app:backgroundTint="@color/colorAccent" />
 
     <EditText
         android:id="@+id/optionalText"

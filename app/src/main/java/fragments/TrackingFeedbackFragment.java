@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -70,6 +71,7 @@ public class TrackingFeedbackFragment extends Fragment implements OnMapReadyCall
         if (bundle != null){
             if (bundle.containsKey("trackedBundle")){
                 routeArray = bundle.getParcelableArrayList("trackedBundle");
+                preferredRoute.setPoints(routeArray.subList(0, routeArray.size()));
             }
             if (bundle.containsKey("passedBundle")){
 
@@ -108,11 +110,6 @@ public class TrackingFeedbackFragment extends Fragment implements OnMapReadyCall
                     //Children of Routes directory
                     DatabaseReference userRoute = routeRef.child("Users' Route");
                     DatabaseReference altRoute = routeRef.child("Alternate Route");
-
-
-
-
-
 
                     userRoute.push().setValue(routeArray);
                     altRoute.push().setValue(altArray);
@@ -175,6 +172,10 @@ public class TrackingFeedbackFragment extends Fragment implements OnMapReadyCall
 
         polylinePaths.add(mMap.addPolyline(generatedPolylineOptions));
         polylinePaths.add(mMap.addPolyline(trackedPolylineOptions));
+
+        //autozoom
+        float zoomLevel = 10.0f; //This goes up to 21
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(routeArray.get(routeArray.size()/2), zoomLevel));
     }
 
     @Override
