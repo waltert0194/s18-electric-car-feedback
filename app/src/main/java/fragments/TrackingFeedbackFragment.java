@@ -95,7 +95,7 @@ public class TrackingFeedbackFragment extends Fragment implements OnMapReadyCall
 
                     //Top level of database
                     DatabaseReference ref = FirebaseDatabase.getInstance().getReference(path);
-                    DatabaseReference userRef = ref.child("Users");
+                    DatabaseReference userRef = ref.push().child("Users");
 
                     //Children of Users Directory
                     DatabaseReference feedbackRef = userRef.child("Feedback");

@@ -26,6 +26,12 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.maps.android.PolyUtil;
 
 import java.io.UnsupportedEncodingException;
@@ -36,6 +42,8 @@ import java.util.Locale;
 import Modules.DirectionFinder;
 import Modules.Route;
 import asc.clemson.electricfeedback.R;
+
+import static android.content.ContentValues.TAG;
 
 public class ManualFeedbackFragment extends Fragment implements OnMapReadyCallback {
     private static View view;
@@ -75,6 +83,46 @@ public class ManualFeedbackFragment extends Fragment implements OnMapReadyCallba
         return view;
     }
 
+    private void loginToFirebase() {
+
+//Call OnCompleteListener if the user is signed in successfully//
+        FirebaseAuth.getInstance().signInAnonymously().addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(Task<AuthResult> task) {
+//If the user has been authenticated...//
+                if (task.isSuccessful()) {
+//...then call requestLocationUpdates//
+                    final String path = getString(R.string.firebase_path);
+
+                    //Top level of database
+                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference(path);
+                    DatabaseReference userRef = ref.push().child("Users");
+
+                    //Children of Users Directory
+                    DatabaseReference feedbackRef = userRef.child("Feedback");
+                    DatabaseReference routeRef = userRef.child("Routes");
+
+                    //Children of Feedback directory
+                    DatabaseReference winnerRef = feedbackRef.child("Winning Route");
+                    DatabaseReference textRef = feedbackRef.child("Optional Feedback");
+
+                    //Children of Routes directory
+                    DatabaseReference userRoute = routeRef.child("Users' Route");
+                    DatabaseReference altRoute = routeRef.child("Alternate Route");
+
+                    userRoute.push().setValue(preferredRouteArray);
+                    altRoute.push().setValue(otherRouteArray);
+                    //winnerRef.push().setValue(BOOLEAN FOR BEST ROUTE);
+                    //textRef.push().setValue(STRING FOR OPTIONAL TEXT);
+                } else {
+//If sign in fails, then log the error//
+                    Log.d(TAG, "Firebase authentication failed");
+                }
+            }
+        });
+    }
+
+
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -83,7 +131,7 @@ public class ManualFeedbackFragment extends Fragment implements OnMapReadyCallba
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO: call database service
+                loginToFirebase();
             }
         });
 
