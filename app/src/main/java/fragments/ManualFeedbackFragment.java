@@ -45,7 +45,7 @@ public class ManualFeedbackFragment extends Fragment implements OnMapReadyCallba
     private static View view;
     private ArrayList<LatLng> preferredRouteArray;
     private ArrayList<LatLng> otherRouteArray;
-    private EditText optionalText;
+    private EditText optionalTextView;
     private List<Route> routes;
     private int numOfRoutes = 2;
     private List<Polyline> polylinePaths = new ArrayList<>();
@@ -109,7 +109,8 @@ public class ManualFeedbackFragment extends Fragment implements OnMapReadyCallba
                     userRoute.push().setValue(preferredRouteArray);
                     altRoute.push().setValue(otherRouteArray);
                     //winnerRef.push().setValue(BOOLEAN FOR BEST ROUTE);
-                    //textRef.push().setValue(STRING FOR OPTIONAL TEXT);
+                    String optionalText = optionalTextView.getText().toString();
+                    textRef.push().setValue(optionalText);
                 } else {
 //If sign in fails, then log the error//
                     Log.d(TAG, "Firebase authentication failed");
@@ -131,7 +132,7 @@ public class ManualFeedbackFragment extends Fragment implements OnMapReadyCallba
             }
         });
 
-        optionalText = getView().findViewById(R.id.optionalText);
+        optionalTextView = getView().findViewById(R.id.optionalText);
 
         MapFragment fragment = (MapFragment) getChildFragmentManager().findFragmentById(R.id.mapFeedback);
         fragment.getMapAsync(this);
