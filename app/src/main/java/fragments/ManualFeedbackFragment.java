@@ -129,6 +129,8 @@ public class ManualFeedbackFragment extends Fragment implements OnMapReadyCallba
             @Override
             public void onClick(View view) {
                 loginToFirebase();
+                Fragment fragment = new StartFragment();
+                replaceFragment(fragment);
             }
         });
 
@@ -216,5 +218,12 @@ mMap.addMarker(new MarkerOptions()
                 return false;
             }
         });
+    }
+
+    public void replaceFragment(Fragment someFragment) {
+        android.app.FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        transaction.replace(R.id.content_frame, someFragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 }

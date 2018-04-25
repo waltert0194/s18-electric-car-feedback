@@ -132,6 +132,8 @@ public class TrackingFeedbackFragment extends Fragment implements OnMapReadyCall
             @Override
             public void onClick(View view) {
                 loginToFirebase();
+                Fragment fragment = new StartFragment();
+                replaceFragment(fragment);
             }
         });
 
@@ -276,5 +278,12 @@ public class TrackingFeedbackFragment extends Fragment implements OnMapReadyCall
                 return false;
             }
         });
+    }
+
+    public void replaceFragment(Fragment someFragment) {
+        android.app.FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        transaction.replace(R.id.content_frame, someFragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 }
