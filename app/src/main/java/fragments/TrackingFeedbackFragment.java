@@ -52,7 +52,7 @@ public class TrackingFeedbackFragment extends Fragment implements OnMapReadyCall
     private static View view;
     private ArrayList <LatLng> routeArray;
     private ArrayList <LatLng> altArray = new ArrayList<>();
-    private EditText optionalText;
+    private EditText optionalTextView;
     private List<Route> routes;
     private int numOfRoutes = 2;
     private List<Polyline> polylinePaths = new ArrayList<>();
@@ -90,6 +90,25 @@ public class TrackingFeedbackFragment extends Fragment implements OnMapReadyCall
         return view;
     }
 
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        FloatingActionButton fab = getView().findViewById(R.id.floatingActionButton);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                loginToFirebase();
+            }
+        });
+
+        optionalTextView = getView().findViewById(R.id.optionalText);
+
+        MapFragment fragment = (MapFragment) getChildFragmentManager().findFragmentById(R.id.mapFeedback);
+        fragment.getMapAsync(this);
+    }
+
     private void loginToFirebase() {
 
 //Call OnCompleteListener if the user is signed in successfully//
@@ -114,40 +133,25 @@ public class TrackingFeedbackFragment extends Fragment implements OnMapReadyCall
                     DatabaseReference textRef = feedbackRef.child("Optional Feedback");
 
                     //Children of Routes directory
-                    DatabaseReference userRoute = routeRef.child("Users' Route");
-                    DatabaseReference altRoute = routeRef.child("Alternate Route");
+                    DatabaseReference userRoute = routeRef.child("Winning Route");
+                    DatabaseReference altRoute = routeRef.child("Losing Route");
 
                     userRoute.push().setValue(routeArray);
                     altRoute.push().setValue(altArray);
                     //winnerRef.push().setValue(BOOLEAN FOR BEST ROUTE);
-                    //textRef.push().setValue(STRING FOR OPTIONAL TEXT);
+                    String optionalText =  optionalTextView.getText().toString();
+                    textRef.push().setValue(optionalText);
+                    Fragment fragment = new StartFragment();
+                    replaceFragment(fragment);
                 } else {
 //If sign in fails, then log the error//
                     Log.d(TAG, "Firebase authentication failed");
                 }
             }
         });
+
     }
 
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        FloatingActionButton fab = getView().findViewById(R.id.floatingActionButton);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                loginToFirebase();
-                Fragment fragment = new StartFragment();
-                replaceFragment(fragment);
-            }
-        });
-
-        optionalText = getView().findViewById(R.id.optionalText);
-
-        MapFragment fragment = (MapFragment) getChildFragmentManager().findFragmentById(R.id.mapFeedback);
-        fragment.getMapAsync(this);
-    }
 
 
     @Override
@@ -293,10 +297,7 @@ public class TrackingFeedbackFragment extends Fragment implements OnMapReadyCall
             Fragment fragment = new StartFragment();
             replaceFragment(fragment);
         }
-
         try {
-            Log.d("ORI",oriName);
-            Log.d("DEST",destName);
             new DirectionFinder(this, oriName, destName).execute();
 
         } catch (UnsupportedEncodingException e) {
