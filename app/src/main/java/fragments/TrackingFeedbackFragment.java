@@ -35,6 +35,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.maps.android.PolyUtil;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -248,6 +249,27 @@ public class TrackingFeedbackFragment extends Fragment implements OnMapReadyCall
             }
             else {
                 if (addresses.size() > 0) {
+
+//                    if (!addresses.get(0).getFeatureName().isEmpty()){
+//                        String featureName = addresses.get(0).getFeatureName();
+//                    }
+//
+//                    if (!addresses.get(0).getThoroughfare().isEmpty()){
+//                        String thoroughName = addresses.get(0).getThoroughfare();
+//                    }
+//
+//                    if (!addresses.get(0).getLocality().isEmpty()){
+//                        String localityName = addresses.get(0).getLocality();
+//                    }
+//
+//                    if (!addresses.get(0).getAdminArea().isEmpty()){
+//                        String adminName = addresses.get(0).getAdminArea();
+//                    }
+//
+//                    if (!addresses.get(0).getCountryName().isEmpty()){
+//                        String countryName = addresses.get(0).getCountryName();
+//                    }
+
                     destName = addresses.get(0).getFeatureName()
                             + ", "
                             + addresses.get(0).getThoroughfare()
@@ -260,8 +282,16 @@ public class TrackingFeedbackFragment extends Fragment implements OnMapReadyCall
                 }
             }
         }
-        catch (Exception e) {
+        catch (NullPointerException e) {
             e.printStackTrace();
+            Toast.makeText(getActivity(), "FAILED", Toast.LENGTH_SHORT).show();
+            Fragment fragment = new StartFragment();
+            replaceFragment(fragment);
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(getActivity(), "FAILED", Toast.LENGTH_SHORT).show();
+            Fragment fragment = new StartFragment();
+            replaceFragment(fragment);
         }
 
         try {
