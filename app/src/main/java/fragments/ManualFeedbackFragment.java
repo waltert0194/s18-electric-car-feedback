@@ -103,8 +103,8 @@ public class ManualFeedbackFragment extends Fragment implements OnMapReadyCallba
                     DatabaseReference textRef = feedbackRef.child("Optional Feedback");
 
                     //Children of Routes directory
-                    DatabaseReference userRoute = routeRef.child("Users' Route");
-                    DatabaseReference altRoute = routeRef.child("Alternate Route");
+                    DatabaseReference userRoute = routeRef.child("Winning Route");
+                    DatabaseReference altRoute = routeRef.child("Losing Route");
 
                     userRoute.push().setValue(preferredRouteArray);
                     altRoute.push().setValue(otherRouteArray);
