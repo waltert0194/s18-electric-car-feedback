@@ -205,7 +205,6 @@ mMap.addMarker(new MarkerOptions()
             public boolean onMarkerClick(Marker marker) {
                 for(int i = 0; i < polylinePaths.size(); i++){
                     if (PolyUtil.isLocationOnPath(marker.getPosition(), polylinePaths.get(i).getPoints(), true, tolerance)) {
-                        Toast.makeText(getActivity(), marker.getId(), Toast.LENGTH_SHORT).show();
                         polylinePaths.get(i).setColor(Color.CYAN);
                         for (Polyline pline :polylinePaths) {
                             if (!pline.equals(polylinePaths.get(i))){
