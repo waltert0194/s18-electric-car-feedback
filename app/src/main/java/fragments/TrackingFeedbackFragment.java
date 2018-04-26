@@ -155,6 +155,11 @@ public class TrackingFeedbackFragment extends Fragment implements OnMapReadyCall
 
     @Override
     public void onDirectionFinderSuccess(List<Route> routes) {
+        if (routes.size() == 0) {
+            Toast.makeText(getActivity(), "Failed Route Generation", Toast.LENGTH_LONG).show();
+            Fragment fragment = new StartFragment();
+            replaceFragment(fragment);
+        }
         Route route = routes.get(0);
 
         PolylineOptions trackedPolylineOptions = new PolylineOptions();
@@ -219,9 +224,13 @@ public class TrackingFeedbackFragment extends Fragment implements OnMapReadyCall
             else {
                 if (addresses.size() > 0) {
                     oriName = addresses.get(0).getFeatureName()
+                            + " "
+                            + addresses.get(0).getThoroughfare()
+                            + " "
                             + addresses.get(0).getLocality()
-                            + ","
+                            + ", "
                             + addresses.get(0).getAdminArea()
+                            + ", "
                             + addresses.get(0).getCountryName();
                 }
             }
@@ -240,9 +249,13 @@ public class TrackingFeedbackFragment extends Fragment implements OnMapReadyCall
             else {
                 if (addresses.size() > 0) {
                     destName = addresses.get(0).getFeatureName()
+                            + ", "
+                            + addresses.get(0).getThoroughfare()
+                            + " "
                             + addresses.get(0).getLocality()
-                            + ","
+                            + ", "
                             + addresses.get(0).getAdminArea()
+                            + ", "
                             + addresses.get(0).getCountryName();
                 }
             }
