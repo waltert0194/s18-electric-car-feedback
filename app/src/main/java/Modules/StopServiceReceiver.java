@@ -4,6 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+//stop a given service
+
 public class StopServiceReceiver extends BroadcastReceiver {
     public static final int REQUEST_CODE = 333;
 

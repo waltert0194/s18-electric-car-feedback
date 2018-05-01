@@ -1,8 +1,6 @@
 package Modules;
 
-/**
- * Created by Mai Thanh Hiep on 4/3/2016.
- */
+//Duration class for determining time length of routes.
 public class Duration {
     public String text;
     public int value;

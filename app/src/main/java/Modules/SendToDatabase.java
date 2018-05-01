@@ -16,6 +16,7 @@ import asc.clemson.electricfeedback.R;
 
 import static android.content.ContentValues.TAG;
 
+//Send to database service
 public class SendToDatabase extends Service {
     public SendToDatabase() {
     }

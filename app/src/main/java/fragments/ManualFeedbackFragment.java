@@ -41,21 +41,36 @@ import asc.clemson.electricfeedback.R;
 
 import static android.content.ContentValues.TAG;
 
+//Fragment that finalizes the route selection and feedback gathering
+//sends to Firebase Database
+//Implements OnMapReadyCallback for rendering the map
+//Implements DirectionFinderListener for generating the alternative route.
+
 public class ManualFeedbackFragment extends Fragment implements OnMapReadyCallback {
+    //layout of fragment
     private static View view;
+    //passed in arguments, preferred route is the one the user selected before pressing on the FAB
     private ArrayList<LatLng> preferredRouteArray;
     private ArrayList<LatLng> otherRouteArray;
+    //editable test box for optional text feedback submitting
     private EditText optionalTextView;
+    //list of the generated routes from DirectionfinderListener
     private List<Route> routes;
     private int numOfRoutes = 2;
+    //lines of routes to draw on the map
     private List<Polyline> polylinePaths = new ArrayList<>();
+    //the map API fragment
     GoogleMap mMap;
+    //user selected preferred Route
     private Polyline preferredRoute;
+    //tolerance for lining up a marker to a polyline
     double tolerance = 30; //meters
 
+    /** Called when the activity is first created. */
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+        //inflate layout
         try {
             view = inflater.inflate(R.layout.fragment_feedback, container, false);
         } catch (android.view.InflateException e) {
@@ -79,6 +94,7 @@ public class ManualFeedbackFragment extends Fragment implements OnMapReadyCallba
         return view;
     }
 
+    //self contained database connection and data push
     private void loginToFirebase() {
 
 //Call OnCompleteListener if the user is signed in successfully//
@@ -106,6 +122,7 @@ public class ManualFeedbackFragment extends Fragment implements OnMapReadyCallba
                     DatabaseReference userRoute = routeRef.child("Winning Route");
                     DatabaseReference altRoute = routeRef.child("Losing Route");
 
+                    //push routes and feedback to firebase
                     userRoute.push().setValue(preferredRouteArray);
                     altRoute.push().setValue(otherRouteArray);
                     //winnerRef.push().setValue(BOOLEAN FOR BEST ROUTE);
@@ -119,7 +136,7 @@ public class ManualFeedbackFragment extends Fragment implements OnMapReadyCallba
         });
     }
 
-
+    /** Called when the activity has become visible. */
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -140,6 +157,7 @@ public class ManualFeedbackFragment extends Fragment implements OnMapReadyCallba
         fragment.getMapAsync(this);
     }
 
+    //Draw routes as lines on the map
     private void drawPolylines() {
 
         PolylineOptions preferredPolylineOptions = new PolylineOptions();
@@ -176,6 +194,7 @@ mMap.addMarker(new MarkerOptions()
 
     }
 
+    //once the map is ready to display ...
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -183,10 +202,10 @@ mMap.addMarker(new MarkerOptions()
             mMap.setMyLocationEnabled(true);
         }
 
-
         //drawLines
         drawPolylines();
 
+        //listen for clicks on the polylines
         mMap.setOnPolylineClickListener(new GoogleMap.OnPolylineClickListener() {
             @Override
             public void onPolylineClick(Polyline polyline) {
@@ -200,9 +219,11 @@ mMap.addMarker(new MarkerOptions()
             }
         });
 
+        //listen for clicks on the markers
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
+                //look though all the polylines
                 for(int i = 0; i < polylinePaths.size(); i++){
                     if (PolyUtil.isLocationOnPath(marker.getPosition(), polylinePaths.get(i).getPoints(), true, tolerance)) {
                         polylinePaths.get(i).setColor(Color.CYAN);
@@ -219,6 +240,7 @@ mMap.addMarker(new MarkerOptions()
         });
     }
 
+    //Create a new fragment and switch the view
     public void replaceFragment(Fragment someFragment) {
         android.app.FragmentTransaction transaction = getFragmentManager().beginTransaction();
         transaction.replace(R.id.content_frame, someFragment);

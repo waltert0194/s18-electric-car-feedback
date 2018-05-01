@@ -48,21 +48,36 @@ import asc.clemson.electricfeedback.R;
 
 import static android.content.ContentValues.TAG;
 
+//Fragment that finalizes the route selection and feedback gathering
+//sends to Firebase Database
+//Implements OnMapReadyCallback for rendering the map
+//Implements DirectionFinderListener for generating the alternative route.
+
 public class TrackingFeedbackFragment extends Fragment implements OnMapReadyCallback, DirectionFinderListener{
+    //layout of fragment
     private static View view;
+    //passed in arguments, preferred route is the one the user selected before pressing on the FAB
     private ArrayList <LatLng> routeArray;
     private ArrayList <LatLng> altArray = new ArrayList<>();
+    //editable test box for optional text feedback submitting
     private EditText optionalTextView;
+    //list of the generated routes from DirectionfinderListener
     private List<Route> routes;
     private int numOfRoutes = 2;
+    //lines of routes to draw on the map
     private List<Polyline> polylinePaths = new ArrayList<>();
+    //the map API fragment
     GoogleMap mMap;
-    private Polyline preferredRoute ;
+    //user selected preferred Route
+    private Polyline preferredRoute;
+    //tolerance for lining up a marker to a polyline
     double tolerance = 30; //meters
 
+    /** Called when the activity is first created. */
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+        //inflate layout
         try {
             view = inflater.inflate(R.layout.fragment_feedback, container, false);
         } catch (android.view.InflateException e) {
@@ -86,11 +101,10 @@ public class TrackingFeedbackFragment extends Fragment implements OnMapReadyCall
             replaceFragment(fragment);
         }
 
-
         return view;
     }
 
-
+    /** Called when the activity has become visible. */
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -109,6 +123,7 @@ public class TrackingFeedbackFragment extends Fragment implements OnMapReadyCall
         fragment.getMapAsync(this);
     }
 
+    //self contained database connection and data push
     private void loginToFirebase() {
 
 //Call OnCompleteListener if the user is signed in successfully//
@@ -154,12 +169,15 @@ public class TrackingFeedbackFragment extends Fragment implements OnMapReadyCall
 
 
 
+    //once directionfinder has started.
     @Override
     public void onDirectionFinderStart() {
     }
 
+    //when directionfinder has returned with a list of routes.
     @Override
     public void onDirectionFinderSuccess(List<Route> routes) {
+        //test check for the proper number of routes
         if (routes.size() == 0) {
             Toast.makeText(getActivity(), "Failed Route Generation", Toast.LENGTH_LONG).show();
             Fragment fragment = new StartFragment();
@@ -181,6 +199,7 @@ public class TrackingFeedbackFragment extends Fragment implements OnMapReadyCall
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.start_blue))
                 .position(routeArray.get(routeArray.size()/2)));
 
+        //set up polyline
         PolylineOptions generatedPolylineOptions = new PolylineOptions().
                 geodesic(true)
                 .color(Color.RED)
@@ -205,6 +224,7 @@ public class TrackingFeedbackFragment extends Fragment implements OnMapReadyCall
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(routeArray.get(routeArray.size()/2), zoomLevel));
     }
 
+    //once the map is ready to display ...
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -212,7 +232,7 @@ public class TrackingFeedbackFragment extends Fragment implements OnMapReadyCall
             mMap.setMyLocationEnabled(true);
         }
 
-        //convert LatLng to plain text address
+        //convert LatLng to plain text address from coordinates
         String oriName = null;
         String destName = null;
         double oriLat = routeArray.get(0).latitude;
@@ -226,7 +246,7 @@ public class TrackingFeedbackFragment extends Fragment implements OnMapReadyCall
             if (addresses.isEmpty()) {
                 Toast.makeText(getActivity(), "address is empty", Toast.LENGTH_SHORT).show();
             }
-            else {
+            else {//concatenate addresses
                 if (addresses.size() > 0) {
                     oriName = addresses.get(0).getFeatureName()
                             + " "
@@ -244,16 +264,16 @@ public class TrackingFeedbackFragment extends Fragment implements OnMapReadyCall
             e.printStackTrace();
         }
 
-        //Get origin address base on location
+        //Get destination address from coordinates
         try{
             Geocoder geo = new Geocoder(TrackingFeedbackFragment.this.getActivity(), Locale.getDefault());
             List<Address> addresses = geo.getFromLocation(destLat, destLng, 1);
             if (addresses.isEmpty()) {
                 Toast.makeText(getActivity(), "address is empty", Toast.LENGTH_SHORT).show();
             }
-            else {
+            else {//concatenate addresses
                 if (addresses.size() > 0) {
-
+//Possbile better way of catching a miscalculated address
 //                    if (!addresses.get(0).getFeatureName().isEmpty()){
 //                        String featureName = addresses.get(0).getFeatureName();
 //                    }
@@ -286,6 +306,7 @@ public class TrackingFeedbackFragment extends Fragment implements OnMapReadyCall
                 }
             }
         }
+        //catch for errors
         catch (NullPointerException e) {
             e.printStackTrace();
             Toast.makeText(getActivity(), "FAILED", Toast.LENGTH_SHORT).show();
@@ -305,6 +326,7 @@ public class TrackingFeedbackFragment extends Fragment implements OnMapReadyCall
             Toast.makeText(getActivity(), "Failed to find Directions", Toast.LENGTH_SHORT).show();
         }
 
+        //listen for clicks on the polylines
         mMap.setOnPolylineClickListener(new GoogleMap.OnPolylineClickListener() {
             @Override
             public void onPolylineClick(Polyline polyline) {
@@ -318,9 +340,11 @@ public class TrackingFeedbackFragment extends Fragment implements OnMapReadyCall
             }
         });
 
+        //listen for clicks on the markers
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
+                //look though all the polylines
                 for(int i = 0; i < polylinePaths.size(); i++){
                     if (PolyUtil.isLocationOnPath(marker.getPosition(), polylinePaths.get(i).getPoints(), true, tolerance)) {
                         polylinePaths.get(i).setColor(Color.CYAN);
@@ -337,6 +361,7 @@ public class TrackingFeedbackFragment extends Fragment implements OnMapReadyCall
         });
     }
 
+    //Create a new fragment and switch the view
     public void replaceFragment(Fragment someFragment) {
         android.app.FragmentTransaction transaction = getFragmentManager().beginTransaction();
         transaction.replace(R.id.content_frame, someFragment);

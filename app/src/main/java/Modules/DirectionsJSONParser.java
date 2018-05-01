@@ -12,7 +12,9 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
+//Direction finder code from the google APIs
+// see developer resource for more details.
+// https://developers.google.com/apps-script/reference/maps/direction-finder
 
 
 public class DirectionsJSONParser {

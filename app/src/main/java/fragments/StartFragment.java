@@ -11,7 +11,10 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 
 import asc.clemson.electricfeedback.R;
-
+//Welcome page for launching the app
+// gives 2 buttons the user can select
+// one does manual route generation that does not require gps locations
+// the other launches background gps tracking
 
 public class StartFragment extends Fragment {
     @Nullable
@@ -25,6 +28,7 @@ public class StartFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        //Set up buttons
         Button manBtn = getView().findViewById(R.id.button1);
         Button trackBtn = getView().findViewById(R.id.button2);
 
@@ -49,6 +53,7 @@ public class StartFragment extends Fragment {
 
     }
 
+    //Create a new fragment and switch the view
     public void replaceFragment(Fragment someFragment) {
         android.app.FragmentTransaction transaction = getFragmentManager().beginTransaction();
         transaction.replace(R.id.content_frame, someFragment);

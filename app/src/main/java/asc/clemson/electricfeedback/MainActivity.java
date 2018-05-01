@@ -9,7 +9,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -19,8 +18,10 @@ import fragments.StartFragment;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    /** Called when the activity is first created. */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //set up activity, and view constraints
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -38,6 +39,7 @@ public class MainActivity extends AppCompatActivity
         MenuItem nav_send = menu.findItem(R.id.nav_send);
         nav_send.setTitle(R.string.nav_menu_return_to_welcome);
 
+        //intent for notifications
         Intent intent = getIntent();
 
 
@@ -48,6 +50,7 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    //When the phone backbutton is pressed, close the nav_drawer if open, else SUPER Backbutton press
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -58,6 +61,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    //settings button and other overflow options
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -65,6 +69,7 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    //settings button and other overflow options
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -81,12 +86,14 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+    //Items in the nav_drawer
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
+        //reload app
         if  (id == R.id.nav_send) {
             FragmentManager fm = getFragmentManager();
             fm.beginTransaction().replace(R.id.content_frame, new StartFragment()).commit();
